@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Currency Converter</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a1a2e;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #4a80f5;
+        }
+        .converter {
+            background-color: #16213e;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #0f3460;
+            color: #e0e0e0;
+        }
+        button {
+            background-color: #4a80f5;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #3a6fd5;
+        }
+        #result {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .analytics {
+            background-color: #16213e;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 20px;
+        }
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Advanced Currency Converter</h1>
+        <div class="converter">
+            <div class="form-group">
+                <label for="amount">Amount:</label>
+                <input type="number" id="amount" min="0" step="0.01" value="1">
+            </div>
+            <div class="form-group">
+                <label for="from">From Currency:</label>
+                <select id="from"></select>
+            </div>
+            <div class="form-group">
+                <label for="to">To Currency:</label>
+                <select id="to"></select>
+            </div>
+            <button onclick="convert()">Convert</button>
+            <div id="result"></div>
+        </div>
+        <div class="analytics">
+            <h2>Analytics</h2>
+            <div class="chart-container">
+                <canvas id="exchangeRateChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <canvas id="currencyStrengthChart"></canvas>
+            </div>
+            <div id="additionalAnalytics"></div>
+        </div>
+    </div>
+    <script>
+        const currencies = [
+            "USD", "EUR", "GBP", "JPY", "AUD", "CAD", "CHF", "CNY", "SEK", "NZD",
+            "MXN", "SGD", "HKD", "NOK", "KRW", "TRY", "RUB", "INR", "BRL", "ZAR"
+        ];
+
+        const exchangeRates = {
+            USD: 1, EUR: 0.92, GBP: 0.77, JPY: 151.74, AUD: 1.51, CAD: 1.39, CHF: 0.87, CNY: 6.47,
+            SEK: 8.45, NZD: 1.39, MXN: 19.89, SGD: 1.33, HKD: 7.77, NOK: 8.41, KRW: 1118.21,
+            TRY: 8.46, RUB: 73.97, INR: 74.18, BRL: 5.25, ZAR: 14.78
+        };
+
+        function populateCurrencyDropdowns() {
+            const fromSelect = document.getElementById("from");
+            const toSelect = document.getElementById("to");
+
+            currencies.forEach(currency => {
+                fromSelect.innerHTML += `<option value="${currency}">${currency}</option>`;
+                toSelect.innerHTML += `<option value="${currency}">${currency}</option>`;
+            });
+
+            fromSelect.value = "USD";
+            toSelect.value = "EUR";
+        }
+
+        function convert() {
+            const amount = parseFloat(document.getElementById("amount").value);
+            const fromCurrency = document.getElementById("from").value;
+            const toCurrency = document.getElementById("to").value;
+
+            const convertedAmount = (amount / exchangeRates[fromCurrency]) * exchangeRates[toCurrency];
+            document.getElementById("result").innerText = `${amount} ${fromCurrency} = ${convertedAmount.toFixed(2)} ${toCurrency}`;
+
+            updateCharts(fromCurrency, toCurrency);
+            updateAdditionalAnalytics(fromCurrency, toCurrency, amount, convertedAmount);
+        }
+
+        let exchangeRateChart, currencyStrengthChart;
+
+        function updateCharts(fromCurrency, toCurrency) {
+            const ctx1 = document.getElementById('exchangeRateChart').getContext('2d');
+            const ctx2 = document.getElementById('currencyStrengthChart').getContext('2d');
+
+            if (exchangeRateChart) exchangeRateChart.destroy();
+            if (currencyStrengthChart) currencyStrengthChart.destroy();
+
+            const exchangeRateData = generateMockHistoricalData(fromCurrency, toCurrency);
+            exchangeRateChart = new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: exchangeRateData.map(d => d.date),
+                    datasets: [{
+                        label: `${fromCurrency}/${toCurrency} Exchange Rate`,
+                        data: exchangeRateData.map(d => d.rate),
+                        borderColor: '#4a80f5',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false
+                        }
+                    }
+                }
+            });
+
+            const strengthData = calculateCurrencyStrength();
+            currencyStrengthChart = new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(strengthData),
+                    datasets: [{
+                        label: 'Currency Strength Index',
+                        data: Object.values(strengthData),
+                        backgroundColor: '#4a80f5'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function generateMockHistoricalData(fromCurrency, toCurrency) {
+            const data = [];
+            const currentRate = exchangeRates[toCurrency] / exchangeRates[fromCurrency];
+            const dates = ['2023-01-01', '2023-02-01', '2023-03-01', '2023-04-01', '2023-05-01'];
+
+            dates.forEach((date, index) => {
+                const randomFactor = 0.95 + Math.random() * 0.1;
+                data.push({
+                    date: date,
+                    rate: (currentRate * randomFactor).toFixed(4)
+                });
+            });
+
+            return data;
+        }
+
+        function calculateCurrencyStrength() {
+            const strengthIndex = {};
+            currencies.forEach(currency => {
+                let strength = 0;
+                currencies.forEach(otherCurrency => {
+                    if (currency !== otherCurrency) {
+                        strength += exchangeRates[otherCurrency] / exchangeRates[currency];
+                    }
+                });
+                strengthIndex[currency] = (strength / (currencies.length - 1)).toFixed(2);
+            });
+            return strengthIndex;
+        }
+
+        function updateAdditionalAnalytics(fromCurrency, toCurrency, amount, convertedAmount) {
+            const analyticsContainer = document.getElementById('additionalAnalytics');
+            const exchangeRate = convertedAmount / amount;
+            const inverseRate = 1 / exchangeRate;
+
+            const ppp = calculatePurchasingPowerParity(fromCurrency, toCurrency);
+            const volatility = calculateVolatility(fromCurrency, toCurrency);
+
+            analyticsContainer.innerHTML = `
+                <h3>Additional Analytics</h3>
+                <p>Exchange Rate: 1 ${fromCurrency} = ${exchangeRate.toFixed(4)} ${toCurrency}</p>
+                <p>Inverse Rate: 1 ${toCurrency} = ${inverseRate.toFixed(4)} ${fromCurrency}</p>
+                <p>Purchasing Power Parity (PPP): ${ppp.toFixed(2)}</p>
+                <p>30-day Volatility: ${volatility.toFixed(2)}%</p>
+            `;
+        }
+
+        function calculatePurchasingPowerParity(fromCurrency, toCurrency) {
+            // This is a simplified calculation for demonstration purposes
+            const baseCurrency = "USD";
+            const fromPPP = exchangeRates[fromCurrency] / exchangeRates[baseCurrency];
+            const toPPP = exchangeRates[toCurrency] / exchangeRates[baseCurrency];
+            return fromPPP / toPPP;
+        }
+
+        function calculateVolatility(fromCurrency, toCurrency) {
+            // This is a mock calculation for demonstration purposes
+            return Math.random() * 5 + 1; // Returns a random volatility between 1% and 6%
+        }
+
+        populateCurrencyDropdowns();
+        convert();
+    </script>
+</body>
+</html>

@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProfitPro Advanced Investment Calculator</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --secondary-color: #50c878;
+            --background-color: #1c2331;
+            --secondary-background: #2c3e50;
+            --text-color: #f0f0f0;
+            --input-background: #34495e;
+        }
+
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1, h2, h3 {
+            color: var(--primary-color);
+            margin-top: 30px;
+        }
+
+        .navbar {
+            background-color: var(--secondary-background);
+            padding: 15px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .navbar li {
+            margin: 0 20px;
+        }
+
+        .navbar a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s ease;
+            font-size: 18px;
+        }
+
+        .navbar a:hover {
+            color: var(--secondary-color);
+        }
+
+        .calculator, .results, .analytics, .portfolio {
+            background-color: var(--secondary-background);
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--input-background);
+            border-radius: 5px;
+            background-color: var(--input-background);
+            color: var(--text-color);
+            font-size: 16px;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-bottom: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            border: 1px solid var(--input-background);
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--input-background);
+        }
+
+        .footer {
+            background-color: var(--secondary-background);
+            color: var(--text-color);
+            text-align: center;
+            padding: 15px 0;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            font-size: 14px;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            margin-bottom: 80px;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 250px;
+            background-color: var(--input-background);
+            color: var(--text-color);
+            text-align: center;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -125px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 14px;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <ul>
+            <li><a href="home.html">Home</a></li>
+            <li><a href="calculator-hub.html">Calculators</a></li>
+            <li><a href="trivia.html">Trivia</a></li>
+            <li><a href="sim.html">Stock Sim</a></li>
+            <li><a href="edu.html">Education</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <h1>ProfitPro Advanced Investment Calculator</h1>
+        <div class="calculator">
+            <h2>Investment Details</h2>
+            <div class="grid-container">
+                <div class="form-group">
+                    <label for="initialInvestment">Initial Investment ($):</label>
+                    <input type="number" id="initialInvestment" min="0" step="1000" value="10000">
+                </div>
+                <div class="form-group">
+                    <label for="monthlyContribution">Monthly Contribution ($):</label>
+                    <input type="number" id="monthlyContribution" min="0" step="100" value="500">
+                </div>
+                <div class="form-group">
+                    <label for="investmentPeriod">Investment Period (years):</label>
+                    <input type="number" id="investmentPeriod" min="1" step="1" value="20">
+                </div>
+                <div class="form-group">
+                    <label for="expectedReturn">Expected Annual Return (%):</label>
+                    <input type="number" id="expectedReturn" min="0" step="0.1" value="7">
+                </div>
+                <div class="form-group">
+                    <label for="riskTolerance">Risk Tolerance:</label>
+                    <select id="riskTolerance">
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="inflationRate">Expected Inflation Rate (%):</label>
+                    <input type="number" id="inflationRate" min="0" step="0.1" value="2">
+                </div>
+                <div class="form-group">
+                    <label for="taxRate">Marginal Tax Rate (%):</label>
+                    <input type="number" id="taxRate" min="0" max="100" step="0.1" value="25">
+                </div>
+                <div class="form-group">
+                    <label for="fees">Annual Fees (%):</label>
+                    <input type="number" id="fees" min="0" step="0.01" value="0.5">
+                </div>
+                <div class="form-group">
+                    <label for="rebalancingFrequency">Rebalancing Frequency:</label>
+                    <select id="rebalancingFrequency">
+                        <option value="quarterly">Quarterly</option>
+                        <option value="semiannually">Semi-annually</option>
+                        <option value="annually" selected>Annually</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="retirementAge">Desired Retirement Age:</label>
+                    <input type="number" id="retirementAge" min="50" max="100" step="1" value="65">
+                </div>
+            </div>
+            <button onclick="calculateInvestment()">Calculate</button>
+        </div>
+        <div class="results">
+            <h2>Investment Summary</h2>
+            <div id="investmentSummary"></div>
+        </div>
+        <div class="analytics">
+            <h2>Investment Analytics</h2>
+            <div class="chart-container">
+                <canvas id="growthChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <canvas id="contributionChart"></canvas>
+            </div>
+            <div id="additionalAnalytics"></div>
+        </div>
+        <div class="portfolio">
+            <h2>Portfolio Allocation</h2>
+            <div class="chart-container">
+                <canvas id="portfolioChart"></canvas>
+            </div>
+            <div id="portfolioAnalytics"></div>
+        </div>
+        <div class="navigation-buttons">
+            <button onclick="navigateToPrevious()">Previous</button>
+            <button onclick="navigateToNext()">Next</button>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2024 ProfitPro. All rights reserved.</p>
+    </footer>
+
+    <script>
+        let growthChart, contributionChart, portfolioChart;
+
+        function calculateInvestment() {
+            const initialInvestment = parseFloat(document.getElementById('initialInvestment').value);
+            const monthlyContribution = parseFloat(document.getElementById('monthlyContribution').value);
+            const investmentPeriod = parseInt(document.getElementById('investmentPeriod').value);
+            const expectedReturn = parseFloat(document.getElementById('expectedReturn').value) / 100;
+            const riskTolerance = document.getElementById('riskTolerance').value;
+            const inflationRate = parseFloat(document.getElementById('inflationRate').value) / 100;
+            const taxRate = parseFloat(document.getElementById('taxRate').value) / 100;
+            const fees = parseFloat(document.getElementById('fees').value) / 100;
+            const rebalancingFrequency = document.getElementById('rebalancingFrequency').value;
+            const retirementAge = parseInt(document.getElementById('retirementAge').value);
+
+            const monthlyRate = (expectedReturn - fees) / 12;
+            const totalMonths = investmentPeriod * 12;
+
+            let balance = initialInvestment;
+            const growthData = [balance];
+            let totalContributions = initialInvestment;
+            let totalInterest = 0;
+
+            for (let i = 1; i <= totalMonths; i++) {
+                balance += monthlyContribution;
+                totalContributions += monthlyContribution;
+                const interest = balance * monthlyRate;
+                balance += interest;
+                totalInterest += interest;
+                growthData.push(balance);
+            }
+
+            const inflationAdjustedBalance = balance / Math.pow(1 + inflationRate, investmentPeriod);
+            const cagr = (Math.pow(balance / initialInvestment, 1 / investmentPeriod) - 1) * 100;
+            const taxAdjustedBalance = balance - (totalInterest * taxRate);
+            const realReturn = cagr - inflationRate * 100;
+
+            displayInvestmentSummary(balance, totalContributions, totalInterest, inflationAdjustedBalance, cagr, taxAdjustedBalance, realReturn);
+            updateCharts(growthData, totalContributions, totalInterest);
+            displayAdditionalAnalytics(balance, totalContributions, totalInterest, inflationAdjustedBalance, cagr, riskTolerance, taxAdjustedBalance, realReturn, retirementAge);
+            displayPortfolioAllocation(riskTolerance, rebalancingFrequency);
+        }
+
+        function displayInvestmentSummary(finalBalance, totalContributions, totalInterest, inflationAdjustedBalance, cagr, taxAdjustedBalance, realReturn) {
+            const summaryHTML = `
+                <p><strong>Final Balance:</strong> $${finalBalance.toFixed(2)}</p>
+                <p><strong>Total Contributions:</strong> $${totalContributions.toFixed(2)}</p>
+                <p><strong>Total Interest Earned:</strong> $${totalInterest.toFixed(2)}</p>
+                <p><strong>Inflation-Adjusted Final Balance:</strong> $${inflationAdjustedBalance.toFixed(2)}</p>
+                <p><strong>Tax-Adjusted Final Balance:</strong> $${taxAdjustedBalance.toFixed(2)}</p>
+                <p><strong>Compound Annual Growth Rate (CAGR):</strong> ${cagr.toFixed(2)}%</p>
+                <p><strong>Real Return (After Inflation):</strong> ${realReturn.toFixed(2)}%</p>
+            `;
+            document.getElementById('investmentSummary').innerHTML = summaryHTML;
+        }
+
+        function updateCharts(growthData, totalContributions, totalInterest) {
+            updateGrowthChart(growthData);
+            updateContributionChart(totalContributions, totalInterest);
+        }
+
+        function updateGrowthChart(growthData) {
+            const ctx = document.getElementById('growthChart').getContext('2d');
+            if (growthChart) growthChart.destroy();
+
+            growthChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Array.from({ length: growthData.length }, (_, i) => i),
+                    datasets: [{
+                        label: 'Investment Growth',
+                        data: growthData,
+                        borderColor: '#4a90e2',
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    title: {
+                        display: true,
+                        text: 'Investment Growth Over Time'
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Months'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Balance ($)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateContributionChart(totalContributions, totalInterest) {
+            const ctx = document.getElementById('contributionChart').getContext('2d');
+            if (contributionChart) contributionChart.destroy();
+
+            contributionChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Total Contributions', 'Total Interest'],
+                    datasets: [{
+                        data: [totalContributions, totalInterest],
+                        backgroundColor: ['#4a90e2', '#50c878']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    title: {
+                        display: true,
+                        text: 'Contributions vs Interest'
+                    }
+                }
+            });
+        }
+
+        function displayAdditionalAnalytics(finalBalance, totalContributions, totalInterest, inflationAdjustedBalance, cagr, riskTolerance, taxAdjustedBalance, realReturn, retirementAge) {
+            const riskAdjustedReturn = calculateRiskAdjustedReturn(cagr, riskTolerance);
+            const breakevenPoint = calculateBreakevenPoint(totalContributions, finalBalance);
+            const doublingTime = Math.log(2) / Math.log(1 + cagr / 100);
+            const sharpeRatio = calculateSharpeRatio(realReturn, riskTolerance);
+            const yearsToRetirement = calculateYearsToRetirement(retirementAge);
+
+            const analyticsHTML = `
+                <h3>Additional Analytics</h3>
+                <p><strong>Risk-Adjusted Return:</strong> ${riskAdjustedReturn.toFixed(2)}%</p>
+                <p><strong>Breakeven Point:</strong> ${breakevenPoint.toFixed(2)} years</p>
+                <p><strong>Investment Doubling Time:</strong> ${doublingTime.toFixed(2)} years</p>
+                <p><strong>Return on Investment (ROI):</strong> ${((finalBalance - totalContributions) / totalContributions * 100).toFixed(2)}%</p>
+                <p><strong>Inflation Impact:</strong> $${(finalBalance - inflationAdjustedBalance).toFixed(2)}</p>
+                <p><strong>Tax Impact:</strong> $${(finalBalance - taxAdjustedBalance).toFixed(2)}</p>
+                <p><strong>Sharpe Ratio:</strong> ${sharpeRatio.toFixed(2)}</p>
+                <p><strong>Years to Retirement:</strong> ${yearsToRetirement} years</p>
+                <p><strong>Projected Annual Retirement Income:</strong> $${(finalBalance * 0.04).toFixed(2)} (using 4% withdrawal rule)</p>
+            `;
+            document.getElementById('additionalAnalytics').innerHTML = analyticsHTML;
+        }
+
+        function calculateRiskAdjustedReturn(cagr, riskTolerance) {
+            const riskFactor = riskTolerance === 'low' ? 0.8 : riskTolerance === 'medium' ? 1 : 1.2;
+            return cagr * riskFactor;
+        }
+
+        function calculateBreakevenPoint(totalContributions, finalBalance) {
+            const investmentPeriod = parseInt(document.getElementById('investmentPeriod').value);
+            return (investmentPeriod * totalContributions) / finalBalance;
+        }
+
+        function calculateSharpeRatio(realReturn, riskTolerance) {
+            const riskFreeRate = 0.02; // Assume 2% risk-free rate
+            const riskFactor = riskTolerance === 'low' ? 0.1 : riskTolerance === 'medium' ? 0.15 : 0.2;
+            return (realReturn - riskFreeRate) / riskFactor;
+        }
+
+        function calculateYearsToRetirement(retirementAge) {
+            const currentDate = new Date();
+            const currentAge = currentDate.getFullYear() - 1990; // Assume birth year 1990
+            return Math.max(0, retirementAge - currentAge);
+        }
+
+        function displayPortfolioAllocation(riskTolerance, rebalancingFrequency) {
+            let stocks, bonds, cash, alternatives;
+            switch (riskTolerance) {
+                case 'low':
+                    stocks = 40;
+                    bonds = 40;
+                    cash = 15;
+                    alternatives = 5;
+                    break;
+                case 'medium':
+                    stocks = 60;
+                    bonds = 25;
+                    cash = 10;
+                    alternatives = 5;
+                    break;
+                case 'high':
+                    stocks = 75;
+                    bonds = 15;
+                    cash = 5;
+                    alternatives = 5;
+                    break;
+            }
+
+            updatePortfolioChart(stocks, bonds, cash, alternatives);
+            displayPortfolioAnalytics(stocks, bonds, cash, alternatives, rebalancingFrequency);
+        }
+
+        function updatePortfolioChart(stocks, bonds, cash, alternatives) {
+            const ctx = document.getElementById('portfolioChart').getContext('2d');
+            if (portfolioChart) portfolioChart.destroy();
+
+            portfolioChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Stocks', 'Bonds', 'Cash', 'Alternatives'],
+                    datasets: [{
+                        data: [stocks, bonds, cash, alternatives],
+                        backgroundColor: ['#4a90e2', '#50c878', '#f39c12', '#e74c3c']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    title: {
+                        display: true,
+                        text: 'Recommended Portfolio Allocation'
+                    }
+                }
+            });
+        }
+
+        function displayPortfolioAnalytics(stocks, bonds, cash, alternatives, rebalancingFrequency) {
+            const analyticsHTML = `
+                <h3>Portfolio Analytics</h3>
+                <p><strong>Stocks Allocation:</strong> ${stocks}%</p>
+                <p><strong>Bonds Allocation:</strong> ${bonds}%</p>
+                <p><strong>Cash Allocation:</strong> ${cash}%</p>
+                <p><strong>Alternatives Allocation:</strong> ${alternatives}%</p>
+                <p><strong>Expected Volatility:</strong> ${calculateVolatility(stocks, bonds, cash, alternatives).toFixed(2)}%</p>
+                <p><strong>Diversification Score:</strong> ${calculateDiversificationScore(stocks, bonds, cash, alternatives).toFixed(2)}/10</p>
+                <p><strong>Rebalancing Frequency:</strong> ${rebalancingFrequency.charAt(0).toUpperCase() + rebalancingFrequency.slice(1)}</p>
+                <p><strong>Estimated Rebalancing Cost:</strong> $${estimateRebalancingCost(rebalancingFrequency).toFixed(2)} per year</p>
+            `;
+            document.getElementById('portfolioAnalytics').innerHTML = analyticsHTML;
+        }
+
+        function calculateVolatility(stocks, bonds, cash, alternatives) {
+            return (stocks * 0.2 + bonds * 0.05 + cash * 0.01 + alternatives * 0.15) / 100 * 100;
+        }
+
+        function calculateDiversificationScore(stocks, bonds, cash, alternatives) {
+            const idealDiversification = 25;
+            const stocksDiff = Math.abs(stocks - idealDiversification);
+            const bondsDiff = Math.abs(bonds - idealDiversification);
+            const cashDiff = Math.abs(cash - idealDiversification);
+            const alternativesDiff = Math.abs(alternatives - idealDiversification);
+            const totalDiff = stocksDiff + bondsDiff + cashDiff + alternativesDiff;
+            return 10 - (totalDiff / 30);
+        }
+
+        function estimateRebalancingCost(rebalancingFrequency) {
+            const baseCost = 100;
+            switch (rebalancingFrequency) {
+                case 'quarterly':
+                    return baseCost * 4;
+                case 'semiannually':
+                    return baseCost * 2;
+                case 'annually':
+                    return baseCost;
+                default:
+                    return 0;
+            }
+        }
+
+        function navigateToPrevious() {
+            window.location.href = "loan.html";
+            console.log("Navigating to previous page");
+        }
+
+        function navigateToNext() {
+            window.location.href = "budget.html";
+            console.log("Navigating to next page");
+        }
+
+        // Initialize the calculator
+        calculateInvestment();
+    </script>
+</body>
+</html>

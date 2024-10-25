@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finance Calculator Hub - ProfitPro</title>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --secondary-color: #3a7bd5;
+            --background-color: #0a192f;
+            --card-background: #112240;
+            --text-color: #e0e0e0;
+        }
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            font-size: 3em;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px rgba(74, 144, 226, 0.5);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 5px rgba(74, 144, 226, 0.5);
+            }
+            to {
+                text-shadow: 0 0 20px rgba(74, 144, 226, 0.8);
+            }
+        }
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .calculator-card {
+            background-color: var(--card-background);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-align: center;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .calculator-card::before {
+            content: '';
+            position: absolute;
+            top: -100%;
+            left: -100%;
+            width: 300%;
+            height: 300%;
+            background: linear-gradient(45deg, transparent, rgba(74, 144, 226, 0.2), transparent);
+            transition: all 0.5s ease;
+        }
+        .calculator-card:hover::before {
+            top: 100%;
+            left: 100%;
+        }
+        .calculator-card:hover {
+            transform: translateY(-5px) scale(1.03);
+            box-shadow: 0 6px 12px rgba(74, 144, 226, 0.2);
+        }
+        .calculator-card h2 {
+            color: var(--primary-color);
+            margin-top: 0;
+        }
+        .calculator-card p {
+            margin-bottom: 20px;
+        }
+        .calculator-card button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        .calculator-card button:hover {
+            background-color: var(--secondary-color);
+            transform: scale(1.05);
+        }
+        #particles-js {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .calculator-card {
+            animation: fadeInUp 0.5s ease-out forwards;
+            opacity: 0;
+        }
+        .navbar {
+            background-color: var(--card-background);
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .navbar ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+        }
+        .navbar li {
+            margin: 0 15px;
+        }
+        .navbar a {
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: bold;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+        .navbar a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background-color: var(--primary-color);
+            transition: width 0.3s ease;
+        }
+        .navbar a:hover::after {
+            width: 100%;
+        }
+        .navbar a.active {
+            color: var(--primary-color);
+        }
+        .navbar a.active::after {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="particles-js"></div>
+    <nav class="navbar">
+        <ul>
+            <li><a href="home.html">Home</a></li>
+            <li><a href="sim.html">Stock Sim</a></li>
+            <li><a href="trivia.html">Trivia</a></li>
+            <li><a href="edu.html">Education</a></li>
+        </ul>
+    </nav>
+    <div class="container">
+        <h1>Finance Calculator Hub</h1>
+        <div class="calculator-grid">
+            <div class="calculator-card" onclick="navigateToCalculator('compound')">
+                <h2>Compound Interest Calculator</h2>
+                <p>Calculate the growth of your investments over time with compound interest.</p>
+                <button>Go to Calculator</button>
+            </div>
+            <div class="calculator-card" onclick="navigateToCalculator('mortgage')">
+                <h2>Mortgage Calculator</h2>
+                <p>Estimate your monthly mortgage payments and total interest paid over the loan term.</p>
+                <button>Go to Calculator</button>
+            </div>
+            <div class="calculator-card" onclick="navigateToCalculator('retirement')">
+                <h2>Retirement Savings Calculator</h2>
+                <p>Plan for your future by estimating your retirement savings and required contributions.</p>
+                <button>Go to Calculator</button>
+            </div>
+            <div class="calculator-card" onclick="navigateToCalculator('currency-converter')">
+                <h2>Currency Converter</h2>
+                <p>Convert between different currencies using up-to-date exchange rates.</p>
+                <button>Go to Calculator</button>
+            </div>
+            <div class="calculator-card" onclick="navigateToCalculator('loan')">
+                <h2>Loan Calculator</h2>
+                <p>Calculate loan payments, interest, and amortization schedules for various loan types.</p>
+                <button>Go to Calculator</button>
+            </div>
+            <div class="calculator-card" onclick="navigateToCalculator('investment')">
+                <h2>Investment Calculator</h2>
+                <p>Analyze potential returns on your investments with different scenarios.</p>
+                <button>Go to Calculator</button>
+            </div>
+          
+            <div class="calculator-card" onclick="navigateToCalculator('budget')">
+                <h2>Budget Calculator</h2>
+                <p>Create and manage personal budgets by tracking income and expenses.</p>
+                <button>Go to Calculator</button>
+            </div>
+
+            <div class="calculator-card" onclick="navigateToCalculator('social-security')">
+                <h2>Social Security Benefit Calculator</h2>
+                <p>Estimate potential Social Security benefits.</p>
+                <button>Go to Calculator</button>
+            </div>
+
+            <div class="calculator-card" onclick="navigateToCalculator('tax')">
+                <h2>Tax Calculator</h2>
+                <p>Estimate annual taxes.</p>
+                <button>Go to Calculator</button>
+            </div>
+          
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script>
+        particlesJS("particles-js", {
+            particles: {
+                number: { value: 80, density: { enable: true, value_area: 800 } },
+                color: { value: "#4a90e2" },
+                shape: { type: "circle" },
+                opacity: { value: 0.5, random: false },
+                size: { value: 3, random: true },
+                line_linked: { enable: true, distance: 150, color: "#4a90e2", opacity: 0.4, width: 1 },
+                move: { enable: true, speed: 6, direction: "none", random: false, straight: false, out_mode: "out", bounce: false }
+            },
+            interactivity: {
+                detect_on: "canvas",
+                events: { onhover: { enable: true, mode: "repulse" }, onclick: { enable: true, mode: "push" }, resize: true },
+                modes: { grab: { distance: 400, line_linked: { opacity: 1 } }, bubble: { distance: 400, size: 40, duration: 2, opacity: 8, speed: 3 }, repulse: { distance: 200, duration: 0.4 }, push: { particles_nb: 4 }, remove: { particles_nb: 2 } }
+            },
+            retina_detect: true
+        });
+
+        function navigateToCalculator(calculatorType) {
+            window.location.href = `${calculatorType}.html`;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.calculator-card');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+            });
+        });
+    </script>
+</body>
+</html>

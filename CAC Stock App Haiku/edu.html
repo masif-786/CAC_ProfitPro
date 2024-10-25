@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Education | FinWise</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #f0f2f5;
+            color: #333;
+        }
+
+        nav {
+            background: #1a237e;
+            padding: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        nav a:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #1a237e 0%, #3949ab 100%);
+            color: white;
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .search-container {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .terms-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .term-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .term-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .term-card h3 {
+            color: #1a237e;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .term-card p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .example {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .example strong {
+            color: #1a237e;
+        }
+
+        @media (max-width: 768px) {
+            nav ul {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="home.html">Home</a></li>
+            <li><a href="calc.html">Calculators</a></li>
+            <li><a href="sim.html">Stock Sim</a></li>
+            <li><a href="trivia.html">Trivia</a></li>
+            <li><a href="edu.html">Education</a></li>
+        </ul>
+    </nav>
+
+    <div class="hero">
+        <h1>Financial Education Center</h1>
+        <p>Master the fundamentals of finance with our comprehensive glossary</p>
+    </div>
+
+    <div class="search-container">
+        <input type="text" class="search-box" placeholder="Search financial terms..." id="searchInput">
+    </div>
+
+    <div class="terms-container">
+        <div class="term-card">
+            <h3><i class="fas fa-chart-line"></i> Stock</h3>
+            <p>A share of ownership in a company that represents a claim on part of the corporation's assets and earnings.</p>
+            <div class="example">
+                <strong>Example:</strong> Owning one share of Apple (AAPL) stock means you own a tiny piece of the company.
+            </div>
+        </div>
+
+        <div class="term-card">
+            <h3><i class="fas fa-coins"></i> Dividend</h3>
+            <p>A portion of a company's earnings that is paid out to shareholders, usually on a quarterly basis.</p>
+            <div class="example">
+                <strong>Example:</strong> If you own 100 shares of a stock paying $2 annual dividend, you'll receive $200 per year.
+            </div>
+        </div>
+
+        <div class="term-card">
+            <h3><i class="fas fa-percentage"></i> Compound Interest</h3>
+            <p>Interest earned on both the initial principal and the accumulated interest from previous periods.</p>
+            <div class="example">
+                <strong>Example:</strong> $1,000 at 10% compound interest becomes $1,610.51 after 5 years.
+            </div>
+        </div>
+
+        <div class="term-card">
+            <h3><i class="fas fa-building"></i> Mutual Fund</h3>
+            <p>A professionally managed investment fund that pools money from many investors to purchase securities.</p>
+            <div class="example">
+                <strong>Example:</strong> Vanguard 500 Index Fund (VFIAX) tracks the S&P 500 index.
+            </div>
+        </div>
+
+        <div class="term-card">
+            <h3><i class="fas fa-chart-pie"></i> Diversification</h3>
+            <p>The practice of spreading investments across different assets to reduce risk.</p>
+            <div class="example">
+                <strong>Example:</strong> Investing in stocks, bonds, real estate, and commodities instead of just one asset type.
+            </div>
+        </div>
+
+        <div class="term-card">
+            <h3><i class="fas fa-bear"></i> Bear Market</h3>
+            <p>A market condition in which prices of securities fall 20% or more from recent highs.</p>
+            <div class="example">
+                <strong>Example:</strong> The stock market entered a bear market in 2022 as the S&P 500 fell over 20%.
+            </div>
+        </div>
+
+        <div class="term-card">
+            <h3><i class="fas fa-bull"></i> Bull Market</h3>
+            <p>A market condition in which prices are rising or expected to rise.</p>
+            <div class="example">
+                <strong>Example:</strong> The 2009-2020 bull market saw the S&P 500 rise over 400%.
+            </div>
+        </div>
+
+        <div class="term-card">
+            <h3><i class="fas fa-file-invoice-dollar"></i> P/E Ratio</h3>
+            <p>Price-to-Earnings ratio, a metric used to value a company by measuring its current share price relative to earnings per share.</p>
+            <div class="example">
+                <strong>Example:</strong> A P/E ratio of 20 means investors are willing to pay $20 for $1 of company earnings.
+            </div>
+        </div>
+
+        <div class="term-card">
+            <h3><i class="fas fa-piggy-bank"></i> IRA</h3>
+            <p>Individual Retirement Account - a tax-advantaged investment account for retirement savings.</p>
+            <div class="example">
+                <strong>Example:</strong> Contributing $6,000 annually to a Roth IRA from age 25 to 65 could grow to over $1 million.
+            </div>
+        </div>
+
+        <div class="term-card">
+            <h3><i class="fas fa-balance-scale"></i> Asset Allocation</h3>
+            <p>The strategy of dividing investments among different asset categories like stocks, bonds, and cash.</p>
+            <div class="example">
+                <strong>Example:</strong> A 60/40 portfolio has 60% in stocks and 40% in bonds.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const searchInput = document.getElementById('searchInput');
+        const terms = document.querySelectorAll('.term-card');
+
+        searchInput.addEventListener('input', (e) => {
+            const searchText = e.target.value.toLowerCase();
+            
+            terms.forEach(term => {
+                const termText = term.textContent.toLowerCase();
+                if (termText.includes(searchText)) {
+                    term.style.display = 'block';
+                } else {
+                    term.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

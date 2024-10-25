@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProfitPro Advanced Social Security Benefit Calculator</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #00a8ff;
+            --secondary-color: #0097e6;
+            --background-color: #000000;
+            --text-color: #ffffff;
+            --input-background: #1e1e1e;
+            --input-text: #ffffff;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: var(--primary-color);
+        }
+
+        nav {
+            background-color: var(--secondary-color);
+            padding: 10px 0;
+        }
+
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        nav ul li {
+            margin: 0 15px;
+        }
+
+        nav ul li a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .calculator {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="number"], input[type="date"], select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--primary-color);
+            border-radius: 4px;
+            background-color: var(--input-background);
+            color: var(--input-text);
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .results {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: var(--input-background);
+            border-radius: 4px;
+        }
+
+        .chart-container {
+            margin-top: 20px;
+        }
+
+        footer {
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            text-align: center;
+            padding: 10px 0;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            margin-bottom: 60px;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="home.html">Home</a></li>
+            <li><a href="calculator-hub.html">Calculators</a></li>
+            <li><a href="trivia.html">Trivia</a></li>
+            <li><a href="edu.html">Education</a></li>
+            <li><a href="sim.html">Stock Sim</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <h1>ProfitPro Advanced Social Security Benefit Calculator</h1>
+        
+        <div class="calculator">
+            <div>
+                <h2>Personal Information</h2>
+                <div class="input-group">
+                    <label for="birth-date">Date of Birth:</label>
+                    <input type="date" id="birth-date" required>
+                </div>
+                <div class="input-group">
+                    <label for="retirement-age">Planned Retirement Age:</label>
+                    <input type="number" id="retirement-age" min="62" max="70" step="1" value="67">
+                </div>
+                <div class="input-group">
+                    <label for="current-salary">Current Annual Salary:</label>
+                    <input type="number" id="current-salary" min="0" step="1000">
+                </div>
+                <div class="input-group">
+                    <label for="years-worked">Years Worked (with Social Security taxes paid):</label>
+                    <input type="number" id="years-worked" min="0" max="35" step="1">
+                </div>
+            </div>
+
+            <div>
+                <h2>Work History</h2>
+                <div class="input-group">
+                    <label for="avg-salary-past-35">Average Salary (Past 35 Years, Adjusted for Inflation):</label>
+                    <input type="number" id="avg-salary-past-35" min="0" step="1000">
+                </div>
+                <div class="input-group">
+                    <label for="expected-salary-growth">Expected Annual Salary Growth (%):</label>
+                    <input type="number" id="expected-salary-growth" min="0" max="10" step="0.1" value="2">
+                </div>
+            </div>
+
+            <div>
+                <h2>Additional Factors</h2>
+                <div class="input-group">
+                    <label for="marital-status">Marital Status:</label>
+                    <select id="marital-status">
+                        <option value="single">Single</option>
+                        <option value="married">Married</option>
+                        <option value="divorced">Divorced</option>
+                        <option value="widowed">Widowed</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="spouse-benefit">Spouse's Estimated Benefit (if applicable):</label>
+                    <input type="number" id="spouse-benefit" min="0" step="100">
+                </div>
+                <div class="input-group">
+                    <label for="other-pensions">Other Pension Income:</label>
+                    <input type="number" id="other-pensions" min="0" step="100">
+                </div>
+            </div>
+
+            <div>
+                <h2>Advanced Options</h2>
+                <div class="input-group">
+                    <label for="inflation-rate">Expected Inflation Rate (%):</label>
+                    <input type="number" id="inflation-rate" min="0" max="10" step="0.1" value="2">
+                </div>
+                <div class="input-group">
+                    <label for="life-expectancy">Life Expectancy:</label>
+                    <input type="number" id="life-expectancy" min="70" max="100" step="1" value="85">
+                </div>
+                <div class="input-group">
+                    <label for="cola">Cost of Living Adjustment (COLA) (%):</label>
+                    <input type="number" id="cola" min="0" max="5" step="0.1" value="1.3">
+                </div>
+            </div>
+        </div>
+
+        <button onclick="calculateSocialSecurityBenefit()">Calculate Social Security Benefit</button>
+
+        <div class="results" id="results"></div>
+
+        <div class="chart-container">
+            <canvas id="benefitProjectionChart"></canvas>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="breakEvenAnalysisChart"></canvas>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="replacementRatioChart"></canvas>
+        </div>
+
+        <div class="navigation-buttons">
+            <button onclick="window.location.href='budget.html'">Previous</button>
+            <button onclick="window.location.href='tax.html'">Next</button>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 ProfitPro. All rights reserved.</p>
+    </footer>
+
+    <script>
+        let benefitProjectionChart;
+        let breakEvenAnalysisChart;
+        let replacementRatioChart;
+
+        function calculateSocialSecurityBenefit() {
+            // Get input values
+            const birthDate = new Date(document.getElementById('birth-date').value);
+            const retirementAge = parseInt(document.getElementById('retirement-age').value);
+            const currentSalary = parseFloat(document.getElementById('current-salary').value);
+            const yearsWorked = parseInt(document.getElementById('years-worked').value);
+            const avgSalaryPast35 = parseFloat(document.getElementById('avg-salary-past-35').value);
+            const expectedSalaryGrowth = parseFloat(document.getElementById('expected-salary-growth').value) / 100;
+            const maritalStatus = document.getElementById('marital-status').value;
+            const spouseBenefit = parseFloat(document.getElementById('spouse-benefit').value) || 0;
+            const otherPensions = parseFloat(document.getElementById('other-pensions').value) || 0;
+            const inflationRate = parseFloat(document.getElementById('inflation-rate').value) / 100;
+            const lifeExpectancy = parseInt(document.getElementById('life-expectancy').value);
+            const cola = parseFloat(document.getElementById('cola').value) / 100;
+
+            // Calculate full retirement age (FRA)
+            const birthYear = birthDate.getFullYear();
+            let fra;
+            if (birthYear <= 1937) {
+                fra = 65;
+            } else if (birthYear >= 1960) {
+                fra = 67;
+            } else {
+                fra = 65 + 2 * Math.min(23, birthYear - 1937) / 12;
+            }
+
+            // Calculate primary insurance amount (PIA)
+            const aime = avgSalaryPast35 / 12;
+            let pia;
+            if (aime <= 996) {
+                pia = 0.9 * aime;
+            } else if (aime <= 6002) {
+                pia = 896.4 + 0.32 * (aime - 996);
+            } else {
+                pia = 2498.32 + 0.15 * (aime - 6002);
+            }
+
+            // Adjust benefit based on retirement age
+            let benefitMultiplier;
+            if (retirementAge < fra) {
+                benefitMultiplier = 1 - 0.0555556 * (fra - retirementAge);
+            } else if (retirementAge > fra) {
+                benefitMultiplier = 1 + 0.08 * (retirementAge - fra);
+            } else {
+                benefitMultiplier = 1;
+            }
+
+            const monthlyBenefit = pia * benefitMultiplier;
+
+            // Calculate lifetime benefit
+            const yearsReceivingBenefit = lifeExpectancy - retirementAge;
+            let lifetimeBenefit = 0;
+            let currentBenefit = monthlyBenefit;
+            for (let i = 0; i < yearsReceivingBenefit; i++) {
+                lifetimeBenefit += currentBenefit * 12;
+                currentBenefit *= (1 + cola);
+            }
+
+            // Calculate break-even analysis
+            const breakEvenAnalysis = calculateBreakEvenAnalysis(pia, fra, lifeExpectancy);
+
+            // Calculate replacement ratio
+            const replacementRatio = (monthlyBenefit * 12) / currentSalary * 100;
+
+            // Display results
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = `
+                <h2>Social Security Benefit Summary</h2>
+                <p>Estimated Monthly Benefit at Age ${retirementAge}: $${monthlyBenefit.toFixed(2)}</p>
+                <p>Estimated Annual Benefit at Age ${retirementAge}: $${(monthlyBenefit * 12).toFixed(2)}</p>
+                <p>Estimated Lifetime Benefit: $${lifetimeBenefit.toFixed(2)}</p>
+                <p>Full Retirement Age: ${fra.toFixed(1)}</p>
+                <p>Replacement Ratio: ${replacementRatio.toFixed(2)}%</p>
+                <h3>Break-Even Analysis</h3>
+                <p>Break-even age (62 vs. FRA): ${breakEvenAnalysis.breakEven62vsFRA.toFixed(1)}</p>
+                <p>Break-even age (FRA vs. 70): ${breakEvenAnalysis.breakEvenFRAvs70.toFixed(1)}</p>
+            `;
+
+            // Update charts
+            updateBenefitProjectionChart(retirementAge, monthlyBenefit, lifeExpectancy, cola);
+            updateBreakEvenAnalysisChart(breakEvenAnalysis);
+            updateReplacementRatioChart(replacementRatio);
+        }
+
+        function calculateBreakEvenAnalysis(pia, fra, lifeExpectancy) {
+            const benefit62 = pia * 0.75;
+            const benefitFRA = pia;
+            const benefit70 = pia * 1.32;
+
+            let cumulative62 = 0;
+            let cumulativeFRA = 0;
+            let cumulative70 = 0;
+
+            let breakEven62vsFRA = 0;
+            let breakEvenFRAvs70 = 0;
+
+            for (let age = 62; age <= lifeExpectancy; age++) {
+                if (age >= 62) cumulative62 += benefit62 * 12;
+                if (age >= fra) cumulativeFRA += benefitFRA * 12;
+                if (age >= 70) cumulative70 += benefit70 * 12;
+
+                if (breakEven62vsFRA === 0 && cumulativeFRA > cumulative62) {
+                    breakEven62vsFRA = age;
+                }
+
+                if (breakEvenFRAvs70 === 0 && cumulative70 > cumulativeFRA) {
+                    breakEvenFRAvs70 = age;
+                }
+            }
+
+            return {
+                breakEven62vsFRA,
+                breakEvenFRAvs70
+            };
+        }
+
+        function updateBenefitProjectionChart(retirementAge, monthlyBenefit, lifeExpectancy, cola) {
+            const ctx = document.getElementById('benefitProjectionChart').getContext('2d');
+
+            if (benefitProjectionChart) {
+                benefitProjectionChart.destroy();
+            }
+
+            const labels = [];
+            const data = [];
+            let currentBenefit = monthlyBenefit;
+
+            for (let age = retirementAge; age <= lifeExpectancy; age++) {
+                labels.push(`Age ${age}`);
+                data.push(currentBenefit * 12);
+                currentBenefit *= (1 + cola);
+            }
+
+            benefitProjectionChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Annual Benefit',
+                        data: data,
+                        borderColor: '#36A2EB',
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    title: {
+                        display: true,
+                        text: 'Social Security Benefit Projection'
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Annual Benefit ($)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Age'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateBreakEvenAnalysisChart(breakEvenAnalysis) {
+            const ctx = document.getElementById('breakEvenAnalysisChart').getContext('2d');
+
+            if (breakEvenAnalysisChart) {
+                breakEvenAnalysisChart.destroy();
+            }
+
+            breakEvenAnalysisChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['62 vs. FRA', 'FRA vs. 70'],
+                    datasets: [{
+                        label: 'Break-Even Age',
+                        data: [breakEvenAnalysis.breakEven62vsFRA, breakEvenAnalysis.breakEvenFRAvs70],
+                        backgroundColor: ['#FF6384', '#36A2EB']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    title: {
+                        display: true,
+                        text: 'Break-Even Analysis'
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Age'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateReplacementRatioChart(replacementRatio) {
+            const ctx = document.getElementById('replacementRatioChart').getContext('2d');
+
+            if (replacementRatioChart) {
+                replacementRatioChart.destroy();
+            }
+
+            replacementRatioChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Social Security', 'Additional Income Needed'],
+                    datasets: [{
+                        data: [replacementRatio, 100 - replacementRatio],
+                        backgroundColor: ['#36A2EB', '#FF6384']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    title: {
+                        display: true,
+                        text: 'Income Replacement Ratio'
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

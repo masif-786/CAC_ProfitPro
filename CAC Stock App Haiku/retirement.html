@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Retirement Calculator</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #0a192f;
+            color: #e6f1ff;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #64ffda;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px rgba(100, 255, 218, 0.5);
+        }
+        .calculator {
+            background-color: #172a45;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .input-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .input-group > div {
+            flex: 1;
+            min-width: 200px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #64ffda;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            background-color: #0a192f;
+            border: 1px solid #64ffda;
+            border-radius: 5px;
+            color: #e6f1ff;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #64ffda;
+            color: #0a192f;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 1.1em;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #45c7b3;
+        }
+        .results {
+            background-color: #172a45;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        .results h2 {
+            color: #64ffda;
+            margin-top: 0;
+        }
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #64ffda;
+        }
+        th {
+            background-color: #64ffda;
+            color: #0a192f;
+        }
+        .analysis {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #172a45;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .analysis h3 {
+            color: #64ffda;
+            margin-top: 0;
+        }
+        .tab-container {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            background-color: #0a192f;
+            color: #e6f1ff;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .tab.active {
+            background-color: #64ffda;
+            color: #0a192f;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Advanced Retirement Calculator</h1>
+        <div class="calculator">
+            <div class="input-group">
+                <div>
+                    <label for="currentAge">Current Age</label>
+                    <input type="number" id="currentAge" value="30" min="0" max="100">
+                </div>
+                <div>
+                    <label for="retirementAge">Retirement Age</label>
+                    <input type="number" id="retirementAge" value="65" min="0" max="100">
+                </div>
+                <div>
+                    <label for="lifeExpectancy">Life Expectancy</label>
+                    <input type="number" id="lifeExpectancy" value="85" min="0" max="120">
+                </div>
+                <div>
+                    <label for="currentSavings">Current Savings ($)</label>
+                    <input type="number" id="currentSavings" value="50000" min="0" step="1000">
+                </div>
+                <div>
+                    <label for="annualSavings">Annual Savings ($)</label>
+                    <input type="number" id="annualSavings" value="10000" min="0" step="500">
+                </div>
+                <div>
+                    <label for="annualIncome">Annual Income ($)</label>
+                    <input type="number" id="annualIncome" value="60000" min="0" step="1000">
+                </div>
+                <div>
+                    <label for="retirementIncome">Desired Retirement Income (%)</label>
+                    <input type="number" id="retirementIncome" value="80" min="0" max="100">
+                </div>
+                <div>
+                    <label for="inflationRate">Inflation Rate (%)</label>
+                    <input type="number" id="inflationRate" value="2" min="0" max="10" step="0.1">
+                </div>
+                <div>
+                    <label for="investmentReturn">Investment Return (%)</label>
+                    <input type="number" id="investmentReturn" value="7" min="0" max="20" step="0.1">
+                </div>
+                <div>
+                    <label for="taxRate">Tax Rate (%)</label>
+                    <input type="number" id="taxRate" value="25" min="0" max="50" step="1">
+                </div>
+            </div>
+            <button onclick="calculate()">Calculate</button>
+        </div>
+        <div class="results" id="results" style="display: none;">
+            <h2>Results</h2>
+            <div class="tab-container">
+                <div class="tab active" onclick="showTab('summary')">Summary</div>
+                <div class="tab" onclick="showTab('projection')">Projection</div>
+                <div class="tab" onclick="showTab('analysis')">Analysis</div>
+            </div>
+            <div id="summaryTab" class="tab-content active">
+                <div id="summaryResults"></div>
+                <div class="chart-container">
+                    <canvas id="retirementNeedsChart"></canvas>
+                </div>
+            </div>
+            <div id="projectionTab" class="tab-content">
+                <div class="chart-container">
+                    <canvas id="savingsProjectionChart"></canvas>
+                </div>
+                <div id="projectionTable"></div>
+            </div>
+            <div id="analysisTab" class="tab-content">
+                <div class="analysis" id="analysis"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        let retirementNeedsChart, savingsProjectionChart;
+
+        function calculate() {
+            const currentAge = parseInt(document.getElementById('currentAge').value);
+            const retirementAge = parseInt(document.getElementById('retirementAge').value);
+            const lifeExpectancy = parseInt(document.getElementById('lifeExpectancy').value);
+            const currentSavings = parseFloat(document.getElementById('currentSavings').value);
+            const annualSavings = parseFloat(document.getElementById('annualSavings').value);
+            const annualIncome = parseFloat(document.getElementById('annualIncome').value);
+            const retirementIncome = parseFloat(document.getElementById('retirementIncome').value) / 100;
+            const inflationRate = parseFloat(document.getElementById('inflationRate').value) / 100;
+            const investmentReturn = parseFloat(document.getElementById('investmentReturn').value) / 100;
+            const taxRate = parseFloat(document.getElementById('taxRate').value) / 100;
+
+            const yearsUntilRetirement = retirementAge - currentAge;
+            const yearsInRetirement = lifeExpectancy - retirementAge;
+
+            const inflationAdjustedReturn = (1 + investmentReturn) / (1 + inflationRate) - 1;
+            const futureAnnualIncome = annualIncome * Math.pow(1 + inflationRate, yearsUntilRetirement);
+            const desiredRetirementIncome = futureAnnualIncome * retirementIncome;
+
+            let projectedSavings = currentSavings;
+            for (let i = 0; i < yearsUntilRetirement; i++) {
+                projectedSavings = projectedSavings * (1 + investmentReturn) + annualSavings;
+            }
+
+            const totalRetirementNeeds = desiredRetirementIncome * yearsInRetirement;
+            const retirementShortfall = Math.max(0, totalRetirementNeeds - projectedSavings);
+
+            displaySummary(desiredRetirementIncome, projectedSavings, totalRetirementNeeds, retirementShortfall);
+            createRetirementNeedsChart(projectedSavings, retirementShortfall);
+            const projectionData = calculateSavingsProjection(currentSavings, annualSavings, yearsUntilRetirement, investmentReturn, inflationRate);
+            createSavingsProjectionChart(projectionData);
+            displayProjectionTable(projectionData);
+            displayAnalysis(currentAge, retirementAge, yearsUntilRetirement, yearsInRetirement, annualSavings, projectedSavings, totalRetirementNeeds, retirementShortfall, inflationAdjustedReturn, taxRate);
+
+            document.getElementById('results').style.display = 'block';
+        }
+
+        function displaySummary(desiredRetirementIncome, projectedSavings, totalRetirementNeeds, retirementShortfall) {
+            const summaryResults = document.getElementById('summaryResults');
+            summaryResults.innerHTML = `
+                <p><strong>Desired Annual Retirement Income:</strong> $${desiredRetirementIncome.toFixed(2)}</p>
+                <p><strong>Projected Savings at Retirement:</strong> $${projectedSavings.toFixed(2)}</p>
+                <p><strong>Total Retirement Needs:</strong> $${totalRetirementNeeds.toFixed(2)}</p>
+                <p><strong>Retirement Shortfall:</strong> $${retirementShortfall.toFixed(2)}</p>
+            `;
+        }
+
+        function createRetirementNeedsChart(projectedSavings, retirementShortfall) {
+            const ctx = document.getElementById('retirementNeedsChart').getContext('2d');
+            
+            if (retirementNeedsChart) {
+                retirementNeedsChart.destroy();
+            }
+
+            retirementNeedsChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Projected Savings', 'Shortfall'],
+                    datasets: [{
+                        data: [projectedSavings, retirementShortfall],
+                        backgroundColor: ['#64ffda', '#ff6b6b']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed !== null) {
+                                        label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function calculateSavingsProjection(currentSavings, annualSavings, yearsUntilRetirement, investmentReturn, inflationRate) {
+            const projection = [];
+            let balance = currentSavings;
+
+            for (let year = 0; year <= yearsUntilRetirement; year++) {
+                projection.push({
+                    year,
+                    balance,
+                    nominalBalance: balance,
+                    inflationAdjustedBalance: balance / Math.pow(1 + inflationRate, year)
+                });
+
+                balance = balance * (1 + investmentReturn) + annualSavings;
+            }
+
+            return projection;
+        }
+
+        function createSavingsProjectionChart(projectionData) {
+            const ctx = document.getElementById('savingsProjectionChart').getContext('2d');
+            
+            if (savingsProjectionChart) {
+                savingsProjectionChart.destroy();
+            }
+
+            savingsProjectionChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: projectionData.map(entry => entry.year),
+                    datasets: [
+                        {
+                            label: 'Nominal Balance',
+                            data: projectionData.map(entry => entry.nominalBalance),
+                            borderColor: '#64ffda',
+                            fill: false
+                        },
+                        {
+                            label: 'Inflation-Adjusted Balance',
+                            data: projectionData.map(entry => entry.inflationAdjustedBalance),
+                            borderColor: '#ff6b6b',
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Years'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Balance ($)'
+                            },
+                            ticks: {
+                                callback: function(value, index, values) {
+                                    return '$' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed.y);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function displayProjectionTable(projectionData) {
+            const tableResults = document.getElementById('projectionTable');
+            let tableHTML = `
+                <table>
+                    <tr>
+                        <th>Year</th>
+                        <th>Nominal Balance</th>
+                        <th>Inflation-Adjusted Balance</th>
+                    </tr>
+            `;
+            projectionData.forEach(entry => {
+                tableHTML += `
+                    <tr>
+                        <td>${entry.year}</td>
+                        <td>$${entry.nominalBalance.toFixed(2)}</td>
+                        <td>$${entry.inflationAdjustedBalance.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+            tableHTML += '</table>';
+            tableResults.innerHTML = tableHTML;
+        }
+
+        function displayAnalysis(currentAge, retirementAge, yearsUntilRetirement, yearsInRetirement, annualSavings, projectedSavings, totalRetirementNeeds, retirementShortfall, inflationAdjustedReturn, taxRate) {
+            const savingsRate = (annualSavings / parseFloat(document.getElementById('annualIncome').value)) * 100;
+            const replacementRatio = (parseFloat(document.getElementById('retirementIncome').value) / 100);
+            const withdrawalRate = (totalRetirementNeeds / yearsInRetirement) / projectedSavings * 100;
+
+            const analysis = document.getElementById('analysis');
+            analysis.innerHTML = `
+                <h3>Retirement Analysis</h3>
+                <p><strong>Years Until Retirement:</strong> ${yearsUntilRetirement}</p>
+                <p><strong>Expected Years in Retirement:</strong> ${yearsInRetirement}</p>
+                <p><strong>Current Savings Rate:</strong> ${savingsRate.toFixed(2)}%</p>
+                <p><strong>Income Replacement Ratio:</strong> ${(replacementRatio * 100).toFixed(2)}%</p>
+                <p><strong>Projected Withdrawal Rate:</strong> ${withdrawalRate.toFixed(2)}%</p>
+                <p><strong>Inflation-Adjusted Investment Return:</strong> ${(inflationAdjustedReturn * 100).toFixed(2)}%</p>
+                <p><strong>Impact of Taxes:</strong> Your effective retirement income will be reduced by approximately ${(taxRate * 100).toFixed(2)}% due to taxes.</p>
+                <p><strong>Retirement Readiness:</strong> ${retirementShortfall > 0 ? 'You may need to increase your savings or adjust your retirement plans.' : 'You are on track to meet your retirement goals.'}</p>
+                <p><strong>Social Security Consideration:</strong> This calculation does not include potential Social Security benefits, which could supplement your retirement income.</p>
+                <p><strong>Savings Adjustment:</strong> To see the impact of changing your annual savings, enter a new amount: <input type="number" id="newAnnualSavings" placeholder="New Annual Savings" oninput="calculateSavingsAdjustment()"></p>
+                <div id="savingsAdjustmentResult"></div>
+            `;
+        }
+
+        function calculateSavingsAdjustment() {
+            const currentAge = parseInt(document.getElementById('currentAge').value);
+            const retirementAge = parseInt(document.getElementById('retirementAge').value);
+            const currentSavings = parseFloat(document.getElementById('currentSavings').value);
+            const investmentReturn = parseFloat(document.getElementById('investmentReturn').value) / 100;
+            const newAnnualSavings = parseFloat(document.getElementById('newAnnualSavings').value);
+
+            const yearsUntilRetirement = retirementAge - currentAge;
+            let projectedSavings = currentSavings;
+            for (let i = 0; i < yearsUntilRetirement; i++) {
+                projectedSavings = projectedSavings * (1 + investmentReturn) + newAnnualSavings;
+            }
+
+            const savingsAdjustmentResult = document.getElementById('savingsAdjustmentResult');
+            savingsAdjustmentResult.innerHTML = `
+                <p>With an annual savings of $${newAnnualSavings.toFixed(2)}, your projected savings at retirement would be $${projectedSavings.toFixed(2)}.</p>
+            `;
+        }
+
+        function showTab(tabName) {
+            const tabs = document.getElementsByClassName('tab');
+            const tabContents = document.getElementsByClassName('tab-content');
+
+            for (let i = 0; i < tabs.length; i++) {
+                tabs[i].classList.remove('active');
+                tabContents[i].classList.remove('active');
+            }
+
+            document.querySelector(`.tab:nth-child(${['summary', 'projection', 'analysis'].indexOf(tabName) + 1})`).classList.add('active');
+            document.getElementById(`${tabName}Tab`).classList.add('active');
+        }
+
+        // Initialize the calculator on page load
+        calculate();
+    </script>
+</body>
+</html>

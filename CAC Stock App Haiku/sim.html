@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Simulator Pro</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #475569;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --background: #f8fafc;
+            --card: #ffffff;
+            --hover: #f1f5f9;
+            --border: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            padding-top: 60px;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .navbar-menu {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .navbar-menu a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            transition: background-color 0.2s;
+        }
+
+        .navbar-menu a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+
+        .stock-list {
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+
+        .stock-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .stock-list::-webkit-scrollbar-track {
+            background: var(--background);
+            border-radius: 4px;
+        }
+
+        .stock-list::-webkit-scrollbar-thumb {
+            background: var(--secondary);
+            border-radius: 4px;
+        }
+
+        .stock-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .stock-item:hover {
+            background: var(--hover);
+        }
+
+        .stock-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .stock-symbol {
+            font-weight: 600;
+        }
+
+        .stock-name {
+            font-size: 0.875rem;
+            color: var(--secondary);
+        }
+
+        .stock-metrics {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.25rem;
+        }
+
+        .stock-price-up {
+            color: var(--success);
+            font-weight: 500;
+        }
+
+        .stock-price-down {
+            color: var(--danger);
+            font-weight: 500;
+        }
+
+        .badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .badge-success {
+            background-color: rgba(34, 197, 94, 0.1);
+            color: var(--success);
+        }
+
+        .badge-warning {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .badge-danger {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .button {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: transform 0.1s, opacity 0.2s;
+        }
+
+        .button:active {
+            transform: scale(0.98);
+        }
+
+        .button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .button-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .button-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--secondary);
+            font-weight: 500;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .search-bar {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--secondary);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 1rem;
+        }
+
+        .time-range-selector {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .time-range-selector button {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            background: var(--card);
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .time-range-selector button.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .metric {
+            text-align: center;
+            padding: 1rem;
+            background: var(--hover);
+            border-radius: 0.75rem;
+            transition: transform 0.2s;
+        }
+
+        .metric:hover {
+            transform: translateY(-2px);
+        }
+
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-label {
+            color: var(--secondary);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .trade-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .footer {
+            background-color: var(--secondary);
+            color: white;
+            text-align: center;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .navbar-menu {
+                display: none;
+            }
+            
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .trade-options {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-brand">Advanced Stock Simulator Pro</div>
+        <div class="navbar-menu">
+            <a href="home.html">Home</a>
+            <a href="calculator-hub.html">Calculators</a>
+            <a href="trivia.html">Trivia</a>
+            <a href="edu.html">Education</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="dashboard">
+            <!-- Portfolio Overview Card -->
+            <div id="portfolio" class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Portfolio Overview</h2>
+                    <div>
+                        <span id="total-value" class="metric-value">$100,000</span>
+                        <span id="daily-change" class="badge"></span>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="portfolio-chart"></canvas>
+                </div>
+            </div>
+
+            <!-- Trading Card -->
+            <div id="trading" class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Trade Stocks</h2>
+                </div>
+                <div class="trade-options">
+                    <div class="input-group">
+                        <label for="order-type">Order Type</label>
+                        <select id="order-type">
+                            <option value="market">Market Order</option>
+                            <option value="limit">Limit Order</option>
+                            <option value="stop">Stop Order</option>
+                            <option value="stop-limit">Stop-Limit Order</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="time-in-force">Time in Force</label>
+                        <select id="time-in-force">
+                            <option value="day">Day Only</option>
+                            <option value="gtc">Good Till Cancelled</option>
+                            <option value="ioc">Immediate or Cancel</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="stock-symbol">Stock Symbol</label>
+                    <input type="text" id="stock-symbol" placeholder="e.g., AAPL">
+                </div>
+                <div class="input-group">
+                    <label for="quantity">Quantity</label>
+                    <input type="number" id="quantity" min="1">
+                </div>
+                <div id="price-inputs"></div>
+                <div class="button-group">
+                    <button class="button button-primary" onclick="buyStock()">Buy</button>
+                    <button class="button button-danger" onclick="sellStock()">Sell</button>
+                </div>
+            </div>
+
+            <!-- Analytics Card -->
+            <div id="analytics" class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Analytics</h2>
+                </div>
+                <div class="analytics-grid">
+                    <div class="metric">
+                        <div id="risk-index" class="metric-value">0.00</div>
+                        <div class="metric-label">Risk Index</div>
+                    </div>
+                    <div class="metric">
+                        <div id="esg-score" class="metric-value">0.00</div>
+                        <div class="metric-label">ESG Score</div>
+                    </div>
+                    <div class="metric">
+                        <div id="daily-return" class="metric-value">0.00%</div>
+                        <div class="metric-label">Daily Return</div>
+                    </div>
+                    <div class="metric">
+                        <div id="sharpe-ratio" class="metric-value">0.00</div>
+                        <div class="metric-label">Sharpe Ratio</div>
+                    </div>
+                    <div class="metric">
+                        <div id="beta" class="metric-value">0.00</div>
+                        <div class="metric-label">Portfolio Beta</div>
+                    </div>
+                    <div class="metric">
+                        <div id="alpha" class="metric-value">0.00</div>
+                        <div class="metric-label">Portfolio Alpha</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Market Overview -->
+        <div id="market" class="card">
+            <div class="card-header">
+                <h2 class="card-title">Market Overview</h2>
+            </div>
+            <div class="search-bar">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="stock-search" placeholder="Search stocks by symbol or name...">
+            </div>
+            <div id="stock-list" class="stock-list"></div>
+        </div>
+
+        <!-- Selected Stock Chart -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Stock Performance</h2>
+            </div>
+            <div class="time-range-selector">
+                <button class="active" onclick="changeTimeRange('1D')">1D</button>
+                <button onclick="changeTimeRange('1W')">1W
+                <button onclick="changeTimeRange('1M')">1M</button>
+                <button onclick="changeTimeRange('3M')">3M</button>
+                <button onclick="changeTimeRange('6M')">6M</button>
+                <button onclick="changeTimeRange('1Y')">1Y</button>
+                <button onclick="changeTimeRange('5Y')">5Y</button>
+            </div>
+            <div class="chart-container">
+                <canvas id="stock-chart"></canvas>
+            </div>
+        </div>
+
+        <!-- Transaction History -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Transaction History</h2>
+            </div>
+            <div id="transaction-history" class="stock-list"></div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2024 Advanced Stock Simulator Pro. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Configuration
+        const config = {
+            apiKey: '',
+            useSimulation: true,
+            simulationInterval: 5000,
+        };
+
+        // State management
+        const state = {
+            portfolio: {},
+            transactions: [],
+            prices: {},
+            historicalData: {},
+            selectedStock: null,
+            timeRange: '1D',
+            marketIndex: 100,
+            riskFreeRate: 0.02,
+        };
+
+        // Enhanced stock data with ESG scores and risk metrics
+        const simulatedStocks = {
+            'AAPL': { 
+                name: 'Apple Inc.', 
+                basePrice: 150,
+                sector: 'Technology',
+                esgScore: 82,
+                riskLevel: 'medium',
+                beta: 1.2,
+                volatility: 0.25
+            },
+            'GOOGL': { 
+                name: 'Alphabet Inc.', 
+                basePrice: 2800,
+                sector: 'Technology',
+                esgScore: 85,
+                riskLevel: 'medium',
+                beta: 1.1,
+                volatility: 0.28
+            },
+            'MSFT': { 
+                name: 'Microsoft Corp.', 
+                basePrice: 300,
+                sector: 'Technology',
+                esgScore: 88,
+                riskLevel: 'low',
+                beta: 0.95,
+                volatility: 0.22
+            },
+            'AMZN': { 
+                name: 'Amazon.com Inc.', 
+                basePrice: 3300,
+                sector: 'Consumer Cyclical',
+                esgScore: 75,
+                riskLevel: 'high',
+                beta: 1.35,
+                volatility: 0.32
+            },
+            'TSLA': { 
+                name: 'Tesla Inc.', 
+                basePrice: 900,
+                sector: 'Automotive',
+                esgScore: 90,
+                riskLevel: 'very-high',
+                beta: 1.8,
+                volatility: 0.45
+            },
+            'META': { 
+                name: 'Meta Platforms Inc.', 
+                basePrice: 330,
+                sector: 'Technology',
+                esgScore: 65,
+                riskLevel: 'high',
+                beta: 1.4,
+                volatility: 0.35
+            },
+            'NVDA': { 
+                name: 'NVIDIA Corp.', 
+                basePrice: 700,
+                sector: 'Technology',
+                esgScore: 80,
+                riskLevel: 'high',
+                beta: 1.5,
+                volatility: 0.38
+            },
+            'JPM': { 
+                name: 'JPMorgan Chase & Co.', 
+                basePrice: 160,
+                sector: 'Financial',
+                esgScore: 70,
+                riskLevel: 'medium',
+                beta: 1.15,
+                volatility: 0.28
+            },
+            'V': { 
+                name: 'Visa Inc.', 
+                basePrice: 230,
+                sector: 'Financial',
+                esgScore: 78,
+                riskLevel: 'low',
+                beta: 0.9,
+                volatility: 0.2
+            },
+            'JNJ': { 
+                name: 'Johnson & Johnson', 
+                basePrice: 170,
+                sector: 'Healthcare',
+                esgScore: 85,
+                riskLevel: 'low',
+                beta: 0.7,
+                volatility: 0.18
+            }
+        };
+
+        // Initialize charts with enhanced options
+        const portfolioChart = new Chart(
+            document.getElementById('portfolio-chart'),
+            {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Portfolio Value',
+                        data: [],
+                        borderColor: '#2563eb',
+                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        },
+                        y: {
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        }
+                    }
+                }
+            }
+        );
+
+        const stockChart = new Chart(
+            document.getElementById('stock-chart'),
+            {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Stock Price',
+                        data: [],
+                        borderColor: '#22c55e',
+                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        },
+                        y: {
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        }
+                    }
+                }
+            }
+        );
+
+        // Enhanced utility functions
+        function formatMoney(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(amount);
+        }
+
+        function formatPercent(value) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'percent',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(value / 100);
+        }
+
+        function getRandomPrice(basePrice, volatility) {
+            const change = basePrice * volatility * (Math.random() - 0.5);
+            return Math.max(basePrice + change, 0.01);
+        }
+
+        function getStockCategory(stock) {
+            const { esgScore, riskLevel } = simulatedStocks[stock];
+            
+            let esgCategory = 'neutral';
+            if (esgScore >= 80) esgCategory = 'high';
+            else if (esgScore <= 60) esgCategory = 'low';
+
+            let riskCategory = 'neutral';
+            if (riskLevel === 'low') riskCategory = 'low';
+            else if (riskLevel === 'high' || riskLevel === 'very-high') riskCategory = 'high';
+
+            return { esgCategory, riskCategory };
+        }
+
+        // Enhanced risk analysis functions
+        function calculateRiskIndex(portfolio) {
+            let riskScore = 0;
+            let totalValue = 0;
+            
+            Object.entries(portfolio).forEach(([symbol, quantity]) => {
+                const stock = simulatedStocks[symbol];
+                const price = state.prices[symbol] || stock.basePrice;
+                const value = price * quantity;
+                totalValue += value;
+                
+                // Consider multiple risk factors
+                const volRisk = stock.volatility * 100;
+                const betaRisk = stock.beta * 50;
+                const sectorRisk = getSectorRisk(stock.sector) * 30;
+                
+                riskScore += (value * (volRisk + betaRisk + sectorRisk));
+            });
+            
+            return totalValue > 0 ? Math.min((riskScore / totalValue) / 3, 100) : 0;
+        }
+
+        function getSectorRisk(sector) {
+            const sectorRisks = {
+                'Technology': 0.8,
+                'Financial': 0.7,
+                'Healthcare': 0.5,
+                'Consumer Cyclical': 0.6,
+                'Automotive': 0.9
+            };
+            return sectorRisks[sector] || 0.6;
+        }
+
+        function calculateESGScore(portfolio) {
+            let totalScore = 0;
+            let totalValue = 0;
+            
+            Object.entries(portfolio).forEach(([symbol, quantity]) => {
+                const stock = simulatedStocks[symbol];
+                const price = state.prices[symbol] || stock.basePrice;
+                const value = price * quantity;
+                
+                totalScore += stock.esgScore * value;
+                totalValue += value;
+            });
+            
+            return totalValue > 0 ? totalScore / totalValue : 0;
+        }
+
+        function calculateDailyReturn(portfolio) {
+            let previousValue = 0;
+            let currentValue = 0;
+            
+            Object.entries(portfolio).forEach(([symbol, quantity]) => {
+                const currentPrice = state.prices[symbol];
+                const previousPrice = currentPrice * (1 - simulatedStocks[symbol].volatility * (Math.random() - 0.5));
+                
+                currentValue += currentPrice * quantity;
+                previousValue += previousPrice * quantity;
+            });
+            
+            return previousValue > 0 ? ((currentValue - previousValue) / previousValue) * 100 : 0;
+        }
+
+        function calculateSharpeRatio(dailyReturns) {
+            const avgReturn = dailyReturns.reduce((a, b) => a + b, 0) / dailyReturns.length;
+            const stdDev = Math.sqrt(
+                dailyReturns.reduce((sq, n) => sq + Math.pow(n - avgReturn, 2), 0) / 
+                (dailyReturns.length - 1)
+            );
+            
+            return stdDev > 0 ? (avgReturn - state.riskFreeRate) / stdDev : 0;
+        }
+
+        function calculatePortfolioBeta(portfolio) {
+            let weightedBeta = 0;
+            let totalValue = 0;
+            
+            Object.entries(portfolio).forEach(([symbol, quantity]) => {
+                const stock = simulatedStocks[symbol];
+                const price = state.prices[symbol] || stock.basePrice;
+                const value = price * quantity;
+                
+                weightedBeta += stock.beta * value;
+                totalValue += value;
+            });
+            
+            return totalValue > 0 ? weightedBeta / totalValue : 1;
+        }
+
+        function calculatePortfolioAlpha(portfolio) {
+            const portfolioReturn = calculateDailyReturn(portfolio);
+            const beta = calculatePortfolioBeta(portfolio);
+            const marketReturn = (state.marketIndex - 100) / 100;
+            
+            return portfolioReturn - (state.riskFreeRate + beta * (marketReturn - state.riskFreeRate));
+        }
+
+        // Enhanced portfolio management functions
+        function updatePortfolio() {
+            let totalValue = 0;
+            let previousValue = 0;
+            
+            Object.entries(state.portfolio).forEach(([symbol, quantity]) => {
+                const currentPrice = state.prices[symbol] || simulatedStocks[symbol].basePrice;
+                const previousPrice = state.historicalData[symbol]?.[state.historicalData[symbol].length - 2] || currentPrice;
+                
+                totalValue += currentPrice * quantity;
+                previousValue += previousPrice * quantity;
+            });
+
+            const dailyChange = previousValue > 0 ? ((totalValue - previousValue) / previousValue) * 100 : 0;
+            const dailyChangeElement = document.getElementById('daily-change');
+            
+            document.getElementById('total-value').textContent = formatMoney(totalValue);
+            dailyChangeElement.textContent = `${dailyChange >= 0 ? '+' : ''}${dailyChange.toFixed(2)}%`;
+            dailyChangeElement.className = `badge ${dailyChange >= 0 ? 'badge-success' : 'badge-danger'}`;
+            
+            // Update risk metrics
+            const riskIndex = calculateRiskIndex(state.portfolio);
+            document.getElementById('risk-index').textContent = riskIndex.toFixed(2);
+            
+            const esgScore = calculateESGScore(state.portfolio);
+            document.getElementById('esg-score').textContent = esgScore.toFixed(2);
+            
+            const dailyReturn = calculateDailyReturn(state.portfolio);
+            document.getElementById('daily-return').textContent = `${dailyReturn >= 0 ? '+' : ''}${dailyReturn.toFixed(2)}%`;
+            
+            const simulatedDailyReturns = Array(30).fill(0).map(() => calculateDailyReturn(state.portfolio));
+            const sharpeRatio = calculateSharpeRatio(simulatedDailyReturns);
+            document.getElementById('sharpe-ratio').textContent = sharpeRatio.toFixed(2);
+            
+            const beta = calculatePortfolioBeta(state.portfolio);
+            document.getElementById('beta').textContent = beta.toFixed(2);
+            
+            const alpha = calculatePortfolioAlpha(state.portfolio);
+            document.getElementById('alpha').textContent = alpha.toFixed(2);
+            
+            // Update portfolio chart
+            const timestamp = new Date().toLocaleTimeString();
+            portfolioChart.data.labels.push(timestamp);
+            portfolioChart.data.datasets[0].data.push(totalValue);
+            
+            if (portfolioChart.data.labels.length > 50) {
+                portfolioChart.data.labels.shift();
+                portfolioChart.data.datasets[0].data.shift();
+            }
+            
+            portfolioChart.update();
+        }
+
+        // Enhanced trading functions
+        function updateOrderForm() {
+            const orderType = document.getElementById('order-type').value;
+            const priceInputsDiv = document.getElementById('price-inputs');
+            priceInputsDiv.innerHTML = '';
+            
+            if (orderType === 'limit' || orderType === 'stop-limit') {
+                priceInputsDiv.innerHTML += `
+                    <div class="input-group">
+                        <label for="limit-price">Limit Price</label>
+                        <input type="number" id="limit-price" step="0.01" min="0.01">
+                    </div>
+                `;
+            }
+            
+            if (orderType === 'stop' || orderType === 'stop-limit') {
+                priceInputsDiv.innerHTML += `
+                    <div class="input-group">
+                        <label
+                        <label for="stop-price">Stop Price</label>
+                        <input type="number" id="stop-price" step="0.01" min="0.01">
+                    </div>
+                `;
+            }
+        }
+
+        function executeTrade(action) {
+            const symbol = document.getElementById('stock-symbol').value.toUpperCase();
+            const quantity = parseInt(document.getElementById('quantity').value);
+            const orderType = document.getElementById('order-type').value;
+            const timeInForce = document.getElementById('time-in-force').value;
+            
+            if (!symbol || !quantity || !simulatedStocks[symbol]) {
+                alert('Please enter valid stock symbol and quantity');
+                return;
+            }
+            
+            const currentPrice = state.prices[symbol] || simulatedStocks[symbol].basePrice;
+            let executeOrder = true;
+            let orderPrice = currentPrice;
+            
+            if (orderType !== 'market') {
+                const limitPrice = document.getElementById('limit-price')?.value;
+                const stopPrice = document.getElementById('stop-price')?.value;
+                
+                if (orderType === 'limit') {
+                    if (action === 'buy' && currentPrice > limitPrice) executeOrder = false;
+                    if (action === 'sell' && currentPrice < limitPrice) executeOrder = false;
+                    orderPrice = limitPrice;
+                } else if (orderType === 'stop') {
+                    if (action === 'buy' && currentPrice < stopPrice) executeOrder = false;
+                    if (action === 'sell' && currentPrice > stopPrice) executeOrder = false;
+                } else if (orderType === 'stop-limit') {
+                    if (action === 'buy' && (currentPrice < stopPrice || currentPrice > limitPrice)) executeOrder = false;
+                    if (action === 'sell' && (currentPrice > stopPrice || currentPrice < limitPrice)) executeOrder = false;
+                    orderPrice = limitPrice;
+                }
+            }
+            
+            if (!executeOrder) {
+                alert('Order conditions not met');
+                return;
+            }
+            
+            const value = orderPrice * quantity;
+            
+            if (action === 'buy') {
+                state.portfolio[symbol] = (state.portfolio[symbol] || 0) + quantity;
+            } else {
+                if (!state.portfolio[symbol] || state.portfolio[symbol] < quantity) {
+                    alert('Insufficient shares');
+                    return;
+                }
+                state.portfolio[symbol] -= quantity;
+                if (state.portfolio[symbol] === 0) delete state.portfolio[symbol];
+            }
+            
+            // Record transaction
+            state.transactions.unshift({
+                timestamp: new Date(),
+                symbol,
+                action,
+                quantity,
+                price: orderPrice,
+                value,
+                orderType,
+                timeInForce
+            });
+            
+            updateTransactionHistory();
+            updatePortfolio();
+        }
+
+        function updateTransactionHistory() {
+            const historyDiv = document.getElementById('transaction-history');
+            historyDiv.innerHTML = state.transactions.map(transaction => `
+                <div class="stock-item">
+                    <div class="stock-info">
+                        <span class="stock-symbol">${transaction.symbol}</span>
+                        <span class="stock-name">
+                            ${transaction.action.toUpperCase()} - ${transaction.quantity} shares
+                        </span>
+                    </div>
+                    <div class="stock-metrics">
+                        <span class="${transaction.action === 'buy' ? 'stock-price-down' : 'stock-price-up'}">
+                            ${formatMoney(transaction.value)}
+                        </span>
+                        <span class="stock-name">
+                            ${transaction.timestamp.toLocaleString()}
+                        </span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Enhanced market data management
+        function updateMarketData() {
+            state.marketIndex = 100 * (1 + 0.1 * (Math.random() - 0.5));
+            
+            Object.entries(simulatedStocks).forEach(([symbol, stock]) => {
+                const currentPrice = state.prices[symbol] || stock.basePrice;
+                state.prices[symbol] = getRandomPrice(currentPrice, stock.volatility);
+                
+                if (!state.historicalData[symbol]) {
+                    state.historicalData[symbol] = [];
+                }
+                state.historicalData[symbol].push(state.prices[symbol]);
+                
+                if (state.historicalData[symbol].length > 1000) {
+                    state.historicalData[symbol].shift();
+                }
+            });
+            
+            updateStockList();
+            updateSelectedStock();
+            updatePortfolio();
+        }
+
+        function updateStockList() {
+            const searchTerm = document.getElementById('stock-search').value.toLowerCase();
+            const stockListDiv = document.getElementById('stock-list');
+            
+            const filteredStocks = Object.entries(simulatedStocks)
+                .filter(([symbol, stock]) => 
+                    symbol.toLowerCase().includes(searchTerm) ||
+                    stock.name.toLowerCase().includes(searchTerm)
+                );
+            
+            stockListDiv.innerHTML = filteredStocks.map(([symbol, stock]) => {
+                const currentPrice = state.prices[symbol] || stock.basePrice;
+                const previousPrice = state.historicalData[symbol]?.[state.historicalData[symbol].length - 2] || currentPrice;
+                const priceChange = ((currentPrice - previousPrice) / previousPrice) * 100;
+                
+                const { esgCategory, riskCategory } = getStockCategory(symbol);
+                
+                return `
+                    <div class="stock-item" onclick="selectStock('${symbol}')">
+                        <div class="stock-info">
+                            <span class="stock-symbol">${symbol}</span>
+                            <span class="stock-name">${stock.name}</span>
+                            <div class="badge-group">
+                                <span class="badge badge-${esgCategory}">ESG: ${stock.esgScore}</span>
+                                <span class="badge badge-${riskCategory}">Risk: ${stock.riskLevel}</span>
+                            </div>
+                        </div>
+                        <div class="stock-metrics">
+                            <span class="${priceChange >= 0 ? 'stock-price-up' : 'stock-price-down'}">
+                                ${formatMoney(currentPrice)}
+                            </span>
+                            <span class="${priceChange >= 0 ? 'stock-price-up' : 'stock-price-down'}">
+                                ${priceChange >= 0 ? '+' : ''}${priceChange.toFixed(2)}%
+                            </span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function selectStock(symbol) {
+            state.selectedStock = symbol;
+            updateSelectedStock();
+        }
+
+        function changeTimeRange(range) {
+            state.timeRange = range;
+            document.querySelectorAll('.time-range-selector button').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent === range);
+            });
+            updateSelectedStock();
+        }
+
+        function updateSelectedStock() {
+            if (!state.selectedStock) return;
+            
+            const stock = simulatedStocks[state.selectedStock];
+            const historicalData = state.historicalData[state.selectedStock] || [];
+            
+            let dataPoints;
+            let labels;
+            const now = new Date();
+            
+            switch (state.timeRange) {
+                case '1D':
+                    dataPoints = historicalData.slice(-390); // 6.5 hours * 60 minutes
+                    labels = Array(dataPoints.length).fill().map((_, i) => {
+                        const date = new Date(now);
+                        date.setMinutes(now.getMinutes() - (dataPoints.length - i));
+                        return date.toLocaleTimeString();
+                    });
+                    break;
+                case '1W':
+                    dataPoints = historicalData.slice(-1950); // 5 days * 390 points
+                    labels = Array(dataPoints.length).fill().map((_, i) => {
+                        const date = new Date(now);
+                        date.setDate(now.getDate() - Math.floor((dataPoints.length - i) / 390));
+                        return date.toLocaleDateString();
+                    });
+                    break;
+                case '1M':
+                    dataPoints = historicalData.slice(-8190); // 21 days * 390 points
+                    labels = Array(dataPoints.length).fill().map((_, i) => {
+                        const date = new Date(now);
+                        date.setDate(now.getDate() - Math.floor((dataPoints.length - i) / 390));
+                        return date.toLocaleDateString();
+                    });
+                    break;
+                case '3M':
+                    dataPoints = historicalData.slice(-24570); // 63 days * 390 points
+                    labels = Array(dataPoints.length).fill().map((_, i) => {
+                        const date = new Date(now);
+                        date.setDate(now.getDate() - Math.floor((dataPoints.length - i) / 390));
+                        return date.toLocaleDateString();
+                    });
+                    break;
+                case '6M':
+                    dataPoints = historicalData.slice(-49140); // 126 days * 390 points
+                    labels = Array(dataPoints.length).fill().map((_, i) => {
+                        const date = new Date(now);
+                        date.setDate(now.getDate() - Math.floor((dataPoints.length - i) / 390));
+                        return date.toLocaleDateString();
+                    });
+                    break;
+                case '1Y':
+                    dataPoints = historicalData.slice(-98280); // 252 days * 390 points
+                    labels = Array(dataPoints.length).fill().map((_, i) => {
+                        const date = new Date(now);
+                        date.setDate(now.getDate() - Math.floor((dataPoints.length - i) / 390));
+                        return date.toLocaleDateString();
+                    });
+                    break;
+                case '5Y':
+                    dataPoints = historicalData.slice(-491400); // 1260 days * 390 points
+                    labels = Array(dataPoints.length).fill().map((_, i) => {
+                        const date = new Date(now);
+                        date.setDate(now.getDate() - Math.floor((dataPoints.length - i) / 390));
+                        return date.toLocaleDateString();
+                    });
+                    break;
+            }
+            
+            stockChart.data.labels = labels;
+            stockChart.data.datasets[0].data = dataPoints;
+            stockChart.data.datasets[0].label = `${state.selectedStock} - ${stock.name}`;
+            stockChart.update();
+        }
+
+        // Event listeners and initialization
+        document.getElementById('order-type').addEventListener('change', updateOrderForm);
+        document.getElementById('stock-search').addEventListener('input', updateStockList);
+
+        function buyStock() {
+            executeTrade('buy');
+        }
+
+        function sellStock() {
+            executeTrade('sell');
+        }
+
+        // Initialize simulation
+        updateOrderForm();
+        setInterval(updateMarketData, config.simulationInterval);
+    </script>
+</body>
+</html>

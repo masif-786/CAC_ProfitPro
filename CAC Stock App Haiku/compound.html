@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Compound Interest Calculator</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #4CAF50;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+        }
+        .calculator {
+            background-color: #2a2a2a;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .input-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .input-group > div {
+            flex: 1;
+            min-width: 200px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #4CAF50;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            background-color: #3a3a3a;
+            border: none;
+            border-radius: 5px;
+            color: #e0e0e0;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 1.1em;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .results {
+            background-color: #2a2a2a;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        .results h2 {
+            color: #4CAF50;
+            margin-top: 0;
+        }
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #4CAF50;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .analysis {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #2a2a2a;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .analysis h3 {
+            color: #4CAF50;
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Advanced Compound Interest Calculator</h1>
+        <div class="calculator">
+            <div class="input-group">
+                <div>
+                    <label for="principal">Initial Investment ($)</label>
+                    <input type="number" id="principal" value="10000" min="0" step="100">
+                </div>
+                <div>
+                    <label for="annualContribution">Annual Contribution ($)</label>
+                    <input type="number" id="annualContribution" value="1000" min="0" step="100">
+                </div>
+                <div>
+                    <label for="interestRate">Annual Interest Rate (%)</label>
+                    <input type="number" id="interestRate" value="7" min="0" max="100" step="0.1">
+                </div>
+                <div>
+                    <label for="compoundFrequency">Compound Frequency</label>
+                    <select id="compoundFrequency">
+                        <option value="1">Annually</option>
+                        <option value="2">Semi-Annually</option>
+                        <option value="4">Quarterly</option>
+                        <option value="12">Monthly</option>
+                        <option value="365">Daily</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="years">Investment Period (Years)</label>
+                    <input type="number" id="years" value="30" min="1" max="100">
+                </div>
+                <div>
+                    <label for="taxRate">Tax Rate (%)</label>
+                    <input type="number" id="taxRate" value="25" min="0" max="100" step="0.1">
+                </div>
+                <div>
+                    <label for="inflationRate">Inflation Rate (%)</label>
+                    <input type="number" id="inflationRate" value="2" min="0" max="100" step="0.1">
+                </div>
+            </div>
+            <button onclick="calculate()">Calculate</button>
+        </div>
+        <div class="results" id="results" style="display: none;">
+            <h2>Results</h2>
+            <div id="summaryResults"></div>
+            <div class="chart-container">
+                <canvas id="growthChart"></canvas>
+            </div>
+            <div id="tableResults"></div>
+            <div class="analysis" id="analysis"></div>
+        </div>
+    </div>
+    <script>
+        let growthChart;
+
+        function calculate() {
+            const principal = parseFloat(document.getElementById('principal').value);
+            const annualContribution = parseFloat(document.getElementById('annualContribution').value);
+            const interestRate = parseFloat(document.getElementById('interestRate').value) / 100;
+            const compoundFrequency = parseInt(document.getElementById('compoundFrequency').value);
+            const years = parseInt(document.getElementById('years').value);
+            const taxRate = parseFloat(document.getElementById('taxRate').value) / 100;
+            const inflationRate = parseFloat(document.getElementById('inflationRate').value) / 100;
+
+            const results = [];
+            let balance = principal;
+            let totalContributions = principal;
+            let totalInterest = 0;
+
+            for (let year = 1; year <= years; year++) {
+                const yearlyInterest = balance * (Math.pow(1 + interestRate / compoundFrequency, compoundFrequency) - 1);
+                balance += yearlyInterest + annualContribution;
+                totalContributions += annualContribution;
+                totalInterest += yearlyInterest;
+
+                const taxedBalance = balance - (totalInterest * taxRate);
+                const inflationAdjustedBalance = taxedBalance / Math.pow(1 + inflationRate, year);
+
+                results.push({
+                    year,
+                    balance: balance.toFixed(2),
+                    taxedBalance: taxedBalance.toFixed(2),
+                    inflationAdjustedBalance: inflationAdjustedBalance.toFixed(2),
+                    interestEarned: totalInterest.toFixed(2),
+                    contributions: totalContributions.toFixed(2)
+                });
+            }
+
+            displayResults(results);
+            createChart(results);
+            displayAnalysis(results, principal, annualContribution, interestRate, taxRate, inflationRate);
+
+            document.getElementById('results').style.display = 'block';
+        }
+
+        function displayResults(results) {
+            const finalYear = results[results.length - 1];
+            const summaryResults = document.getElementById('summaryResults');
+            summaryResults.innerHTML = `
+                <p><strong>Final Balance:</strong> $${finalYear.balance}</p>
+                <p><strong>After-Tax Balance:</strong> $${finalYear.taxedBalance}</p>
+                <p><strong>Inflation-Adjusted Balance:</strong> $${finalYear.inflationAdjustedBalance}</p>
+                <p><strong>Total Contributions:</strong> $${finalYear.contributions}</p>
+                <p><strong>Total Interest Earned:</strong> $${finalYear.interestEarned}</p>
+            `;
+
+            const tableResults = document.getElementById('tableResults');
+            let tableHTML = `
+                <table>
+                    <tr>
+                        <th>Year</th>
+                        <th>Balance</th>
+                        <th>After-Tax Balance</th>
+                        <th>Inflation-Adjusted Balance</th>
+                        <th>Interest Earned</th>
+                        <th>Total Contributions</th>
+                    </tr>
+            `;
+            results.forEach(result => {
+                tableHTML += `
+                    <tr>
+                        <td>${result.year}</td>
+                        <td>$${result.balance}</td>
+                        <td>$${result.taxedBalance}</td>
+                        <td>$${result.inflationAdjustedBalance}</td>
+                        <td>$${result.interestEarned}</td>
+                        <td>$${result.contributions}</td>
+                    </tr>
+                `;
+            });
+            tableHTML += '</table>';
+            tableResults.innerHTML = tableHTML;
+        }
+
+        function createChart(results) {
+            const ctx = document.getElementById('growthChart').getContext('2d');
+            
+            if (growthChart) {
+                growthChart.destroy();
+            }
+
+            growthChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: results.map(result => result.year),
+                    datasets: [
+                        {
+                            label: 'Balance',
+                            data: results.map(result => result.balance),
+                            borderColor: '#4CAF50',
+                            backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                            fill: true
+                        },
+                        {
+                            label: 'After-Tax Balance',
+                            data: results.map(result => result.taxedBalance),
+                            borderColor: '#FFA500',
+                            backgroundColor: 'rgba(255, 165, 0, 0.1)',
+                            fill: true
+                        },
+                        {
+                            label: 'Inflation-Adjusted Balance',
+                            data: results.map(result => result.inflationAdjustedBalance),
+                            borderColor: '#FF6347',
+                            backgroundColor: 'rgba(255, 99, 71, 0.1)',
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Year'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Balance ($)'
+                            },
+                            ticks: {
+                                callback: function(value, index, values) {
+                                    return '$' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed.y);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function displayAnalysis(results, principal, annualContribution, interestRate, taxRate, inflationRate) {
+            const finalYear = results[results.length - 1];
+            const totalInvestment = parseFloat(finalYear.contributions);
+            const totalReturn = parseFloat(finalYear.balance) - totalInvestment;
+            const totalTaxPaid = totalReturn * taxRate;
+            const realReturn = (parseFloat(finalYear.inflationAdjustedBalance) - totalInvestment) / totalInvestment * 100;
+            const yearsToDouble = Math.log(2) / Math.log(1 + interestRate);
+
+            const analysis = document.getElementById('analysis');
+            analysis.innerHTML = `
+                <h3>Investment Analysis</h3>
+                <p><strong>Total Return on Investment:</strong> ${(totalReturn / totalInvestment * 100).toFixed(2)}%</p>
+                <p><strong>Real Return (Adjusted for Inflation):</strong> ${realReturn.toFixed(2)}%</p>
+                <p><strong>Total Tax Paid on Interest:</strong> $${totalTaxPaid.toFixed(2)}</p>
+                <p><strong>Years to Double Investment (Rule of 72):</strong> ${yearsToDouble.toFixed(1)} years</p>
+                <p><strong>Impact of Inflation:</strong> Your final balance of $${finalYear.balance} in today's dollars is worth $${finalYear.inflationAdjustedBalance} after adjusting for inflation.</p>
+                <p><strong>Power of Compound Interest:</strong> Your initial investment of $${principal} grew to $${finalYear.balance}, that's a ${((parseFloat(finalYear.balance) / principal) * 100).toFixed(2)}% increase!</p>
+            `;
+        }
+
+        // Initialize the calculator on page load
+        calculate();
+    </script>
+</body>
+</html>

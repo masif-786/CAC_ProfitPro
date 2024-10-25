@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Mortgage Calculator</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #00bcd4;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px rgba(0, 188, 212, 0.5);
+        }
+        .calculator {
+            background-color: #1e1e1e;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .input-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .input-group > div {
+            flex: 1;
+            min-width: 200px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #00bcd4;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            background-color: #333;
+            border: none;
+            border-radius: 5px;
+            color: #e0e0e0;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #00bcd4;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 1.1em;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #008ba3;
+        }
+        .results {
+            background-color: #1e1e1e;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        .results h2 {
+            color: #00bcd4;
+            margin-top: 0;
+        }
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #00bcd4;
+        }
+        th {
+            background-color: #00bcd4;
+            color: white;
+        }
+        .analysis {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #1e1e1e;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .analysis h3 {
+            color: #00bcd4;
+            margin-top: 0;
+        }
+        .tab-container {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            background-color: #333;
+            color: #e0e0e0;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .tab.active {
+            background-color: #00bcd4;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Advanced Mortgage Calculator</h1>
+        <div class="calculator">
+            <div class="input-group">
+                <div>
+                    <label for="homeValue">Home Value ($)</label>
+                    <input type="number" id="homeValue" value="300000" min="0" step="1000">
+                </div>
+                <div>
+                    <label for="downPayment">Down Payment ($)</label>
+                    <input type="number" id="downPayment" value="60000" min="0" step="1000">
+                </div>
+                <div>
+                    <label for="loanTerm">Loan Term (Years)</label>
+                    <input type="number" id="loanTerm" value="30" min="1" max="50">
+                </div>
+                <div>
+                    <label for="interestRate">Interest Rate (%)</label>
+                    <input type="number" id="interestRate" value="3.5" min="0" max="20" step="0.1">
+                </div>
+                <div>
+                    <label for="propertyTax">Annual Property Tax (%)</label>
+                    <input type="number" id="propertyTax" value="1.2" min="0" max="5" step="0.1">
+                </div>
+                <div>
+                    <label for="homeInsurance">Annual Home Insurance ($)</label>
+                    <input type="number" id="homeInsurance" value="1000" min="0" step="100">
+                </div>
+                <div>
+                    <label for="pmi">PMI (%)</label>
+                    <input type="number" id="pmi" value="0.5" min="0" max="2" step="0.1">
+                </div>
+                <div>
+                    <label for="hoa">Monthly HOA ($)</label>
+                    <input type="number" id="hoa" value="0" min="0" step="10">
+                </div>
+            </div>
+            <button onclick="calculate()">Calculate</button>
+        </div>
+        <div class="results" id="results" style="display: none;">
+            <h2>Results</h2>
+            <div class="tab-container">
+                <div class="tab active" onclick="showTab('summary')">Summary</div>
+                <div class="tab" onclick="showTab('amortization')">Amortization</div>
+                <div class="tab" onclick="showTab('analysis')">Analysis</div>
+            </div>
+            <div id="summaryTab" class="tab-content active">
+                <div id="summaryResults"></div>
+                <div class="chart-container">
+                    <canvas id="paymentBreakdownChart"></canvas>
+                </div>
+            </div>
+            <div id="amortizationTab" class="tab-content">
+                <div class="chart-container">
+                    <canvas id="amortizationChart"></canvas>
+                </div>
+                <div id="amortizationTable"></div>
+            </div>
+            <div id="analysisTab" class="tab-content">
+                <div class="analysis" id="analysis"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        let paymentBreakdownChart, amortizationChart;
+
+        function calculate() {
+            const homeValue = parseFloat(document.getElementById('homeValue').value);
+            const downPayment = parseFloat(document.getElementById('downPayment').value);
+            const loanTerm = parseInt(document.getElementById('loanTerm').value);
+            const interestRate = parseFloat(document.getElementById('interestRate').value) / 100;
+            const propertyTax = parseFloat(document.getElementById('propertyTax').value) / 100;
+            const homeInsurance = parseFloat(document.getElementById('homeInsurance').value);
+            const pmi = parseFloat(document.getElementById('pmi').value) / 100;
+            const hoa = parseFloat(document.getElementById('hoa').value);
+
+            const loanAmount = homeValue - downPayment;
+            const monthlyInterestRate = interestRate / 12;
+            const numberOfPayments = loanTerm * 12;
+
+            const monthlyMortgagePayment = (loanAmount * monthlyInterestRate * Math.pow(1 + monthlyInterestRate, numberOfPayments)) / (Math.pow(1 + monthlyInterestRate, numberOfPayments) - 1);
+            const monthlyPropertyTax = (homeValue * propertyTax) / 12;
+            const monthlyHomeInsurance = homeInsurance / 12;
+            const monthlyPMI = (downPayment / homeValue < 0.2) ? (loanAmount * pmi) / 12 : 0;
+            const totalMonthlyPayment = monthlyMortgagePayment + monthlyPropertyTax + monthlyHomeInsurance + monthlyPMI + hoa;
+
+            displaySummary(monthlyMortgagePayment, monthlyPropertyTax, monthlyHomeInsurance, monthlyPMI, hoa, totalMonthlyPayment);
+            createPaymentBreakdownChart(monthlyMortgagePayment, monthlyPropertyTax, monthlyHomeInsurance, monthlyPMI, hoa);
+            const amortizationSchedule = calculateAmortizationSchedule(loanAmount, monthlyInterestRate, numberOfPayments, monthlyMortgagePayment);
+            createAmortizationChart(amortizationSchedule);
+            displayAmortizationTable(amortizationSchedule);
+            displayAnalysis(homeValue, downPayment, loanAmount, interestRate, loanTerm, totalMonthlyPayment, amortizationSchedule);
+
+            document.getElementById('results').style.display = 'block';
+        }
+
+        function displaySummary(monthlyMortgagePayment, monthlyPropertyTax, monthlyHomeInsurance, monthlyPMI, hoa, totalMonthlyPayment) {
+            const summaryResults = document.getElementById('summaryResults');
+            summaryResults.innerHTML = `
+                <p><strong>Monthly Mortgage Payment:</strong> $${monthlyMortgagePayment.toFixed(2)}</p>
+                <p><strong>Monthly Property Tax:</strong> $${monthlyPropertyTax.toFixed(2)}</p>
+                <p><strong>Monthly Home Insurance:</strong> $${monthlyHomeInsurance.toFixed(2)}</p>
+                <p><strong>Monthly PMI:</strong> $${monthlyPMI.toFixed(2)}</p>
+                <p><strong>Monthly HOA:</strong> $${hoa.toFixed(2)}</p>
+                <p><strong>Total Monthly Payment:</strong> $${totalMonthlyPayment.toFixed(2)}</p>
+            `;
+        }
+
+        function createPaymentBreakdownChart(monthlyMortgagePayment, monthlyPropertyTax, monthlyHomeInsurance, monthlyPMI, hoa) {
+            const ctx = document.getElementById('paymentBreakdownChart').getContext('2d');
+            
+            if (paymentBreakdownChart) {
+                paymentBreakdownChart.destroy();
+            }
+
+            paymentBreakdownChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Mortgage', 'Property Tax', 'Home Insurance', 'PMI', 'HOA'],
+                    datasets: [{
+                        data: [monthlyMortgagePayment, monthlyPropertyTax, monthlyHomeInsurance, monthlyPMI, hoa],
+                        backgroundColor: ['#00bcd4', '#4caf50', '#ffc107', '#f44336', '#9c27b0']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed !== null) {
+                                        label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function calculateAmortizationSchedule(loanAmount, monthlyInterestRate, numberOfPayments, monthlyMortgagePayment) {
+            let balance = loanAmount;
+            const schedule = [];
+
+            for (let month = 1; month <= numberOfPayments; month++) {
+                const interestPayment = balance * monthlyInterestRate;
+                const principalPayment = monthlyMortgagePayment - interestPayment;
+                balance -= principalPayment;
+
+                schedule.push({
+                    month,
+                    balance: balance,
+                    interestPayment: interestPayment,
+                    principalPayment: principalPayment
+                });
+            }
+
+            return schedule;
+        }
+
+        function createAmortizationChart(amortizationSchedule) {
+            const ctx = document.getElementById('amortizationChart').getContext('2d');
+            
+            if (amortizationChart) {
+                amortizationChart.destroy();
+            }
+
+            amortizationChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: amortizationSchedule.map(entry => entry.month),
+                    datasets: [
+                        {
+                            label: 'Balance',
+                            data: amortizationSchedule.map(entry => entry.balance),
+                            borderColor: '#00bcd4',
+                            fill: false
+                        },
+                        {
+                            label: 'Interest',
+                            data: amortizationSchedule.map(entry => entry.interestPayment),
+                            borderColor: '#f44336',
+                            fill: false
+                        },
+                        {
+                            label: 'Principal',
+                            data: amortizationSchedule.map(entry => entry.principalPayment),
+                            borderColor: '#4caf50',
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Month'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Amount ($)'
+                            },
+                            ticks: {
+                                callback: function(value, index, values) {
+                                    return '$' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed.y);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function displayAmortizationTable(amortizationSchedule) {
+            const tableResults = document.getElementById('amortizationTable');
+            let tableHTML = `
+                <table>
+                    <tr>
+                        <th>Month</th>
+                        <th>Balance</th>
+                        <th>Interest Payment</th>
+                        <th>Principal Payment</th>
+                    </tr>
+            `;
+            amortizationSchedule.forEach(entry => {
+                tableHTML += `
+                    <tr>
+                        <td>${entry.month}</td>
+                        <td>$${entry.balance.toFixed(2)}</td>
+                        <td>$${entry.interestPayment.toFixed(2)}</td>
+                        <td>$${entry.principalPayment.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+            tableHTML += '</table>';
+            tableResults.innerHTML = tableHTML;
+        }
+
+        function displayAnalysis(homeValue, downPayment, loanAmount, interestRate, loanTerm, totalMonthlyPayment, amortizationSchedule) {
+            const totalInterestPaid = amortizationSchedule.reduce((sum, entry) => sum + entry.interestPayment, 0);
+            const totalCostOfLoan = totalInterestPaid + loanAmount;
+            const ltvRatio = (loanAmount / homeValue) * 100;
+            const breakEvenPoint = Math.ceil(downPayment / (totalMonthlyPayment * 12 * 0.05)); // Assuming 5% annual appreciation
+
+            const analysis = document.getElementById('analysis');
+            analysis.innerHTML = `
+                <h3>Mortgage Analysis</h3>
+                <p><strong>Loan-to-Value (LTV) Ratio:</strong> ${ltvRatio.toFixed(2)}%</p>
+                <p><strong>Total Interest Paid:</strong> $${totalInterestPaid.toFixed(2)}</p>
+                <p><strong>Total Cost of Loan:</strong> $${totalCostOfLoan.toFixed(2)}</p>
+                <p><strong>Interest-to-Principal Ratio:</strong> ${(totalInterestPaid / loanAmount).toFixed(2)}</p>
+                <p><strong>Break-Even Point:</strong> Approximately ${breakEvenPoint} years (assuming 5% annual appreciation)</p>
+                <p><strong>Debt-to-Income Ratio:</strong> To calculate, enter your monthly income: <input type="number" id="monthlyIncome" placeholder="Monthly Income" oninput="calculateDTI(${totalMonthlyPayment})"></p>
+                <div id="dtiResult"></div>
+                <p><strong>Impact of Extra Payments:</strong> To see the impact of making extra payments, enter a monthly amount: <input type="number" id="extraPayment" placeholder="Extra Payment" oninput="calculateExtraPaymentImpact(${loanAmount}, ${interestRate}, ${loanTerm})"></p>
+                <div id="extraPaymentResult"></div>
+            `;
+        }
+
+        function calculateDTI(totalMonthlyPayment) {
+            const monthlyIncome = parseFloat(document.getElementById('monthlyIncome').value);
+            if (monthlyIncome) {
+                const dti = (totalMonthlyPayment / monthlyIncome) * 100;
+                document.getElementById('dtiResult').innerHTML = `
+                    <p>Your Debt-to-Income Ratio: ${dti.toFixed(2)}%</p>
+                    <p>${dti <= 36 ? 'Your DTI is within the recommended range (36% or lower).' : 'Your DTI is higher than the recommended 36%. Consider ways to lower your monthly payments or increase your income.'}</p>
+                `;
+            }
+        }
+
+        function calculateExtraPaymentImpact(loanAmount, interestRate, loanTerm) {
+            const extraPayment = parseFloat(document.getElementById('extraPayment').value);
+            if (extraPayment) {
+                const monthlyInterestRate = interestRate / 12;
+                const numberOfPayments = loanTerm * 12;
+                const monthlyPayment = (loanAmount * monthlyInterestRate * Math.pow(1 + monthlyInterestRate, numberOfPayments)) / (Math.pow(1 + monthlyInterestRate, numberOfPayments) - 1);
+
+                let balanceWithExtra = loanAmount;
+                let balanceWithoutExtra = loanAmount;
+                let monthsWithExtra = 0;
+                let totalInterestWithExtra = 0;
+                let totalInterestWithoutExtra = 0;
+
+                while (balanceWithExtra > 0) {
+                    const interestPaymentWithExtra = balanceWithExtra * monthlyInterestRate;
+                    balanceWithExtra -= (monthlyPayment + extraPayment - interestPaymentWithExtra);
+                    totalInterestWithExtra += interestPaymentWithExtra;
+                    monthsWithExtra++;
+
+                    if (monthsWithExtra <= numberOfPayments) {
+                        const interestPaymentWithoutExtra = balanceWithoutExtra * monthlyInterestRate;
+                        balanceWithoutExtra -= (monthlyPayment - interestPaymentWithoutExtra);
+                        totalInterestWithoutExtra += interestPaymentWithoutExtra;
+                    }
+                }
+
+                const timeSaved = numberOfPayments - monthsWithExtra;
+                const interestSaved = totalInterestWithoutExtra - totalInterestWithExtra;
+
+                document.getElementById('extraPaymentResult').innerHTML = `
+                    <p>By making an extra monthly payment of $${extraPayment.toFixed(2)}:</p>
+                    <p>You will pay off your mortgage ${Math.floor(timeSaved / 12)} years and ${timeSaved % 12} months earlier.</p>
+                    <p>You will save $${interestSaved.toFixed(2)} in interest over the life of the loan.</p>
+                `;
+            }
+        }
+
+        function showTab(tabName) {
+            const tabs = document.getElementsByClassName('tab');
+            const tabContents = document.getElementsByClassName('tab-content');
+
+            for (let i = 0; i < tabs.length; i++) {
+                tabs[i].classList.remove('active');
+                tabContents[i].classList.remove('active');
+            }
+
+            document.querySelector(`.tab:nth-child(${['summary', 'amortization', 'analysis'].indexOf(tabName) + 1})`).classList.add('active');
+            document.getElementById(`${tabName}Tab`).classList.add('active');
+        }
+
+        // Initialize the calculator on page load
+        calculate();
+    </script>
+</body>
+</html>

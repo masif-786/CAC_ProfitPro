@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProfitPro Finance Hub - Trivia</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+        :root {
+            --primary-color: #004e92;
+            --secondary-color: #000428;
+            --accent-color: #ffd700;
+            --text-color: #ffffff;
+            --success-color: #4CAF50;
+            --error-color: #f44336;
+            --warning-color: #ff9800;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navbar {
+            background-color: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 15px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-link {
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .nav-link.active {
+            background-color: var(--accent-color);
+            color: var(--secondary-color);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 30px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            flex-grow: 1;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 3.5rem;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 15px;
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+        }
+
+        .stat {
+            background-color: rgba(255, 255, 255, 0.15);
+            padding: 10px 20px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stat-icon {
+            font-size: 1.2em;
+        }
+
+        #game-container {
+            text-align: center;
+        }
+
+        .mode-select {
+            margin-bottom: 30px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .mode-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .mode-btn.active {
+            background-color: var(--accent-color);
+            color: var(--secondary-color);
+            transform: scale(1.05);
+        }
+
+        #question-container {
+            background-color: rgba(255, 255, 255, 0.15);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        #question {
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+            line-height: 1.4;
+        }
+
+        #options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .option {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 20px;
+            font-size: 1.1rem;
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 10px;
+            backdrop-filter: blur(5px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .option::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
+        }
+
+        .option:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background-color: var(--accent-color);
+            transition: width 0.3s ease;
+        }
+
+        #game-over {
+            display: none;
+            text-align: center;
+            animation: slideIn 0.5s ease;
+        }
+
+        .game-over-content {
+            background-color: rgba(255, 255, 255, 0.15);
+            padding: 40px;
+            border-radius: 20px;
+            margin-top: 30px;
+        }
+
+        #final-score {
+            font-size: 2.5rem;
+            margin: 30px 0;
+            animation: bounceIn 0.8s;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .stat-card {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            background-color: var(--accent-color);
+            border: none;
+            color: var(--secondary-color);
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-secondary {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: var(--text-color);
+        }
+
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px var(--accent-color);
+            }
+            to {
+                text-shadow: 0 0 20px #fff, 0 0 30px #fff, 0 0 40px var(--accent-color);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes bounceIn {
+            0% {
+                transform: scale(0.3);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            70% {
+                transform: scale(0.9);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .correct {
+            background-color: var(--success-color) !important;
+            animation: correct-answer 0.5s ease;
+        }
+
+        .incorrect {
+            background-color: var(--error-color) !important;
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes correct-answer {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .achievement {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transform: translateX(120%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .achievement.show {
+            transform: translateX(0);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 20px;
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            #question {
+                font-size: 1.4rem;
+            }
+
+            #options {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .mobile-menu {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-content">
+            <div class="nav-links">
+                <a href="home.html" class="nav-link">Home</a>
+                <a href="calc.html" class="nav-link">Calculators</a>
+                <a href="sim.html" class="nav-link">Stock Simulator</a>
+                <a href="trivia.html" class="nav-link active">Trivia</a>
+                <a href="edu.html" class="nav-link">Education</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>FinGenius: The Ultimate Finance Trivia</h1>
+        
+        <div id="game-container">
+            <div class="game-header">
+                <div class="stats">
+                    <div class="stat">
+                        <span class="stat-icon">⭐</span>
+                        <span id="score">Score: 0</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-icon">⏱️</span>
+                        <span id="timer">Time: 60s</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-icon">🎯</span>
+                        <span id="streak">Streak: 0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mode-select">
+                <button class="mode-btn active" data-mode="beginner">Beginner</button>
+                <button class="mode-btn" data-mode="easy">Easy</button>
+                <button class="mode-btn" data-mode="medium">Medium</button>
+                <button class="mode-btn" data-mode="hard">Hard</button>
+                <button class="mode-btn" data-mode="expert">Expert</button>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress" style="width: 0%"></div>
+            </div>
+
+            <div id="question-container">
+                <div id="question"></div>
+                <div id="options"></div>
+            </div>
+        </div>
+
+        <div id="game-over">
+            <div class="game-over-content">
+                <h2>Game Over!</h2>
+                <div id="final-score"></div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Correct Answers</h3>
+                        <div id="correct-answers">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Accuracy</h3>
+                        <div id="accuracy">0%</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Best Streak</h3>
+                        <div id="best-streak">0</div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button id="restart-btn" class="btn">Play Again</button>
+                    <button id="change-mode-btn" class="btn btn-secondary">Change Mode</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="achievement">
+        <span class="achievement-icon">🏆</span>
+        <span class="achievement-text"></span>
+    </div>
+
+    <script>
+        const questions = {
+            beginner: [
+              {
+                    question: "What is money kept in a bank called?",
+                    options: ["Savings", "Spending", "Shopping", "Storing"],
+                    answer: 0,
+                    explanation: "Money kept in a bank is called savings, which can earn interest over time."
+                },
+                {
+                    question: "What is pocket money also known as?",
+                    options: ["Salary", "Allowance", "Income", "Wage"],
+                    answer: 1,
+                    explanation: "Regular money given to children by parents is called an allowance."
+                },
+                {
+                    question: "Which of these is used to buy things?",
+                    options: ["Currency", "Recipe", "Calendar", "Weather"],
+                    answer: 0,
+                    explanation: "Currency is money used to buy goods and services."
+                },
+                {
+                    question: "What is a piggy bank used for?",
+                    options: ["Playing", "Eating", "Saving money", "Drawing"],
+                    answer: 2,
+                    explanation: "A piggy bank is a container used to save coins and small amounts of money."
+                },
+                {
+                    question: "What does buy mean?",
+                    options: ["Get something for money", "Give something away", "Find something", "Lose something"],
+                    answer: 0,
+                    explanation: "Buying means getting something by paying money for it."
+                },
+                {
+                    question: "What is a bank?",
+                    options: ["A store", "A place to keep money safe", "A restaurant", "A school"],
+                    answer: 1,
+                    explanation: "A bank is a financial institution where people can safely store their money."
+                },
+                {
+                    question: "What is a coin?",
+                    options: ["Paper money", "Metal money", "Plastic card", "Check"],
+                    answer: 1,
+                    explanation: "A coin is a piece of metal used as money."
+                },
+                {
+                    question: "What should you do with your money?",
+                    options: ["Spend it all", "Give it away", "Save some of it", "Lose it"],
+                    answer: 2,
+                    explanation: "It's important to save money for future needs and emergencies."
+                }
+            ],
+            easy: [
+                {
+                    question: "What is the term for money deposited in a bank?",
+                    options: ["Savings", "Spending", "Investing", "Borrowing"],
+                    answer: 0,
+                    explanation: "Money deposited in a bank is called savings, which can earn interest."
+                },
+                {
+                    question: "Which of these is NOT a type of bank account?",
+                    options: ["Checking", "Savings", "Credit", "Debit"],
+                    answer: 3,
+                    explanation: "A debit card is a payment method, not a type of bank account."
+                },
+                {
+                    question: "What does ATM stand for?",
+                    options: ["Automated Teller Machine", "Automatic Transfer Money", "Account Transfer Method", "All-Time Money"],
+                    answer: 0,
+                    explanation: "ATM stands for Automated Teller Machine, which allows basic banking transactions."
+                },
+                {
+                    question: "What is interest?",
+                    options: ["Money you borrow", "Fee for bank services", "Money earned on savings", "Monthly payment"],
+                    answer: 2,
+                    explanation: "Interest is money earned on savings or paid on borrowed money."
+                },
+                {
+                    question: "Which is a digital currency?",
+                    options: ["Dollar", "Euro", "Bitcoin", "Yen"],
+                    answer: 2,
+                    explanation: "Bitcoin is a digital or cryptocurrency, while the others are traditional currencies."
+                },
+                {
+                    question: "What is a budget?",
+                    options: ["Shopping list", "Spending plan", "Bank account", "Credit score"],
+                    answer: 1,
+                    explanation: "A budget is a plan for how to spend and save money."
+                },
+                {
+                    question: "What is a credit card?",
+                    options: ["Debit card", "ID card", "Borrowed money card", "Gift card"],
+                    answer: 2,
+                    explanation: "A credit card allows you to borrow money for purchases that must be repaid."
+                },
+                {
+                    question: "What is income?",
+                    options: ["Money spent", "Money earned", "Money saved", "Money borrowed"],
+                    answer: 1,
+                    explanation: "Income is money received, typically from work or investments."
+                }
+            ],
+            medium: [
+                {
+                    question: "What is inflation?",
+                    options: ["Rising prices", "Falling prices", "Stable prices", "No prices"],
+                    answer: 0,
+                    explanation: "Inflation is the general increase in prices over time."
+                },
+                {
+                    question: "What is a stock?",
+                    options: ["Company loan", "Company ownership", "Company product", "Company employee"],
+                    answer: 1,
+                    explanation: "A stock represents ownership in a company."
+                },
+                {
+                    question: "What is diversification?",
+                    options: ["Buying one stock", "Spreading investments", "Saving cash", "Taking loans"],
+                    answer: 1,
+                    explanation: "Diversification means spreading investments to reduce risk."
+                },
+                {
+                    question: "What is a mutual fund?",
+                    options: ["Single stock", "Mixed investments", "Savings account", "Credit card"],
+                    answer: 1,
+                    explanation: "A mutual fund pools money from many investors to buy various investments."
+                },
+                {
+                    question: "What is compound interest?",
+                    options: ["Simple interest", "Interest on interest", "Fixed interest", "No interest"],
+                    answer: 1,
+                    explanation: "Compound interest is earning interest on previously earned interest."
+                },
+                {
+                    question: "What is a bond?",
+                    options: ["Stock investment", "Loan to company/government", "Savings account", "Credit card"],
+                    answer: 1,
+                    explanation: "A bond is a loan to a company or government that pays interest."
+                },
+                {
+                    question: "What is net worth?",
+                    options: ["Total assets", "Total debts", "Assets minus debts", "Income minus expenses"],
+                    answer: 2,
+                    explanation: "Net worth is the total value of assets minus total debts."
+                },
+                {
+                    question: "What is a dividend?",
+                    options: ["Stock price", "Company profit share", "Interest payment", "Account fee"],
+                    answer: 1,
+                    explanation: "A dividend is a share of company profits paid to stockholders."
+                }
+            ],
+            hard: [
+                {
+                    question: "What is market capitalization?",
+                    options: ["Stock price", "Total company value", "Daily trading volume", "Profit margin"],
+                    answer: 1,
+                    explanation: "Market capitalization is the total value of a company's outstanding shares."
+                },
+                {
+                    question: "What is a hedge fund?",
+                    options: ["Mutual fund", "Investment partnership", "Index fund", "Money market"],
+                    answer: 1,
+                    explanation: "A hedge fund is an investment partnership using various strategies."
+                },
+                {
+                    question: "What is short selling?",
+                    options: ["Quick trade", "Selling borrowed shares", "Small investment", "Buying stocks"],
+                    answer: 1,
+                    explanation: "Short selling involves selling borrowed shares hoping to rebuy cheaper."
+                },
+                {
+                    question: "What is arbitrage?",
+                    options: ["Price difference profit", "Long-term investment", "Market timing", "Risk management"],
+                    answer: 0,
+                    explanation: "Arbitrage is profiting from price differences in different markets."
+                },
+                {
+                    question: "What is beta in investing?",
+                    options: ["Return measure", "Risk measure", "Price measure", "Time measure"],
+                    answer: 1,
+                    explanation: "Beta measures a stock's volatility compared to the market."
+                },
+                {
+                    question: "What is an option?",
+                    options: ["Stock purchase", "Future contract", "Right to buy/sell", "Market index"],
+                    answer: 2,
+                    explanation: "An option gives the right, but not obligation, to buy/sell at a set price."
+                },
+                {
+                    question: "What is a derivative?",
+                    options: ["Direct investment", "Contract based on asset", "Company stock", "Bank account"],
+                    answer: 1,
+                    explanation: "A derivative is a contract whose value is based on another asset."
+                },
+                {
+                    question: "What is leverage?",
+                    options: ["Saving money", "Using borrowed money", "Reducing risk", "Selling stocks"],
+                    answer: 1,
+                    explanation: "Leverage is using borrowed money to increase investment exposure."
+                }
+            ],
+            expert: [
+                {
+                    question: "What is the Sharpe ratio?",
+                    options: ["Risk-free return", "Risk-adjusted return", "Total return", "Market return"],
+                    answer: 1,
+                    explanation: "The Sharpe ratio measures risk-adjusted return of an investment."
+                },
+                {
+                    question: "What is duration in bond investing?",
+                    options: ["Time to maturity", "Price sensitivity", "Interest rate", "Credit rating"],
+                    answer: 1,
+                    explanation: "Duration measures a bond's price sensitivity to interest rate changes."
+                },
+                {
+                    question: "What is a swap contract?",
+                    options: ["Stock exchange", "Cash flow exchange", "Option contract", "Future contract"],
+                    answer: 1,
+                    explanation: "A swap is an agreement to exchange cash flows."
+                },
+                {
+                    question: "What is quantitative easing?",
+                    options: ["Tax reduction", "Interest rate cut", "Asset purchasing", "Currency printing"],
+                    answer: 2,
+                    explanation: "Quantitative easing is central bank purchasing of financial assets."
+                },
+                {
+                    question: "What is alpha in investing?",
+                    options: ["Market return", "Excess return", "Total return", "Risk measure"],
+                    answer: 1,
+                    explanation: "Alpha measures returns above a benchmark index."
+                },
+                {
+                    question: "What is a yield curve?",
+                    options: ["Stock chart", "Interest rate plot", "Price graph", "Volume chart"],
+                    answer: 1,
+                    explanation: "A yield curve shows interest rates across different maturities."
+                },
+                {
+                    question: "What is VaR (Value at Risk)?",
+                    options: ["Profit measure", "Loss estimate", "Return calculation", "Price change"],
+                    answer: 1,
+                    explanation: "VaR estimates the potential loss in value of a portfolio."
+                },
+                {
+                    question: "What is the efficient frontier?",
+                    options: ["Maximum profit", "Optimal portfolios", "Risk level", "Return rate"],
+                    answer: 1,
+                    explanation: "The efficient frontier shows optimal risk-return portfolio combinations."
+                }
+            ]
+        };
+
+        let currentMode = 'beginner';
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let streak = 0;
+        let bestStreak = 0;
+        let correctAnswers = 0;
+        let totalQuestions = 0;
+        let timer;
+        let timeLeft = 60;
+        let achievements = {
+            'streak3': { unlocked: false, text: '3 correct answers in a row!' },
+            'streak5': { unlocked: false, text: '5 correct answers in a row!' },
+            'perfectRound': { unlocked: false, text: 'Perfect round!' },
+            'speedster': { unlocked: false, text: 'Lightning fast answer!' },
+            'allModes': { unlocked: false, text: 'Played all difficulty modes!' }
+        };
+
+        // DOM Elements
+        const questionElement = document.getElementById('question');
+        const optionsElement = document.getElementById('options');
+        const scoreElement = document.getElementById('score');
+        const timerElement = document.getElementById('timer');
+        const streakElement = document.getElementById('streak');
+        const gameOverElement = document.getElementById('game-over');
+        const finalScoreElement = document.getElementById('final-score');
+        const correctAnswersElement = document.getElementById('correct-answers');
+        const accuracyElement = document.getElementById('accuracy');
+        const bestStreakElement = document.getElementById('best-streak');
+        const restartBtn = document.getElementById('restart-btn');
+        const changeModeBtn = document.getElementById('change-mode-btn');
+        const progressBar = document.querySelector('.progress');
+        const modeButtons = document.querySelectorAll('.mode-btn');
+        const achievementElement = document.querySelector('.achievement');
+
+        function startGame() {
+            currentQuestionIndex = 0;
+            score = 0;
+            streak = 0;
+            correctAnswers = 0;
+            totalQuestions = 0;
+            timeLeft = 60;
+            gameOverElement.style.display = 'none';
+            document.getElementById('game-container').style.display = 'block';
+            updateScore();
+            updateStreak();
+            showQuestion();
+            startTimer();
+            updateProgressBar();
+        }
+
+        function showQuestion() {
+            const question = questions[currentMode][currentQuestionIndex];
+            questionElement.textContent = question.question;
+            optionsElement.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.classList.add('option');
+                button.addEventListener('click', () => selectAnswer(index));
+                optionsElement.appendChild(button);
+            });
+
+            updateProgressBar();
+        }
+
+        function selectAnswer(index) {
+            totalQuestions++;
+            const question = questions[currentMode][currentQuestionIndex];
+            const options = optionsElement.children;
+            const answerTime = 60 - timeLeft;
+            
+            for (let i = 0; i < options.length; i++) {
+                options[i].disabled = true;
+                if (i === question.answer) {
+                    options[i].classList.add('correct');
+                } else if (i === index) {
+                    options[i].classList.add('incorrect');
+                }
+            }
+
+            if (index === question.answer) {
+                correctAnswers++;
+                streak++;
+                if (streak > bestStreak) bestStreak = streak;
+                
+                // Calculate score based on time and difficulty
+                const timeBonus = Math.max(0, 30 - answerTime) * 2;
+                const difficultyMultiplier = getDifficultyMultiplier();
+                const questionScore = (100 + timeBonus) * difficultyMultiplier;
+                
+                score += questionScore;
+                updateScore();
+                updateStreak();
+                checkAchievements(answerTime);
+            } else {
+                streak = 0;
+                updateStreak();
+            }
+
+            setTimeout(() => {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < questions[currentMode].length) {
+                    showQuestion();
+                } else {
+                    endGame();
+                }
+            }, 1500);
+        }
+
+        function getDifficultyMultiplier() {
+            const multipliers = {
+                'beginner': 1,
+                'easy': 1.2,
+                'medium': 1.5,
+                'hard': 2,
+                'expert': 3
+            };
+            return multipliers[currentMode];
+        }
+
+        function checkAchievements(answerTime) {
+            if (streak === 3 && !achievements.streak3.unlocked) {
+                unlockAchievement('streak3');
+            }
+            if (streak === 5 && !achievements.streak5.unlocked) {
+                unlockAchievement('streak5');
+            }
+            if (correctAnswers === questions[currentMode].length && !achievements.perfectRound.unlocked) {
+                unlockAchievement('perfectRound');
+            }
+            if (answerTime < 3 && !achievements.speedster.unlocked) {
+                unlockAchievement('speedster');
+            }
+        }
+
+        function unlockAchievement(achievementId) {
+            if (!achievements[achievementId].unlocked) {
+                achievements[achievementId].unlocked = true;
+                showAchievement(achievements[achievementId].text);
+            }
+        }
+
+        function showAchievement(text) {
+            const achievementText = achievementElement.querySelector('.achievement-text');
+            achievementText.textContent = text;
+            achievementElement.classList.add('show');
+            
+            setTimeout(() => {
+                achievementElement.classList.remove('show');
+            }, 3000);
+        }
+
+        function startTimer() {
+            clearInterval(timer);
+            timer = setInterval(() => {
+                timeLeft--;
+                timerElement.textContent = `Time: ${timeLeft}s`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        function updateScore() {
+            scoreElement.textContent = `Score: ${score}`;
+        }
+
+        function updateStreak() {
+            streakElement.textContent = `Streak: ${streak}`;
+        }
+
+        function updateProgressBar() {
+            const progress = (currentQuestionIndex / questions[currentMode].length) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+
+        function endGame() {
+            clearInterval(timer);
+            document.getElementById('game-container').style.display = 'none';
+            gameOverElement.style.display = 'block';
+            
+            finalScoreElement.textContent = `Final Score: ${score}`;
+            correctAnswersElement.textContent = correctAnswers;
+            accuracyElement.textContent = `${Math.round((correctAnswers / totalQuestions) * 100)}%`;
+            bestStreakElement.textContent = bestStreak;
+        }
+
+        // Event Listeners
+        restartBtn.addEventListener('click', startGame);
+
+        changeModeBtn.addEventListener('click', () => {
+            gameOverElement.style.display = 'none';
+            document.getElementById('game-container').style.display = 'block';
+            currentMode = 'beginner';
+            updateModeButtons();
+            startGame();
+        });
+
+        modeButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                modeButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                currentMode = button.dataset.mode;
+                startGame();
+            });
+        });
+
+        function updateModeButtons() {
+            modeButtons.forEach(button => {
+                button.classList.remove('active');
+                if (button.dataset.mode === currentMode) {
+                    button.classList.add('active');
+                }
+            });
+        }
+
+        // Local Storage Functions
+        function saveHighScore() {
+            const currentHighScore = localStorage.getItem(`highScore_${currentMode}`) || 0;
+            if (score > currentHighScore) {
+                localStorage.setItem(`highScore_${currentMode}`, score);
+                return true;
+            }
+            return false;
+        }
+
+        function loadHighScores() {
+            const modes = ['beginner', 'easy', 'medium', 'hard', 'expert'];
+            const highScores = {};
+            modes.forEach(mode => {
+                highScores[mode] = localStorage.getItem(`highScore_${mode}`) || 0;
+            });
+            return highScores;
+        }
+
+        // Initialize game
+        startGame();
+    </script>
+</body>
+</html>

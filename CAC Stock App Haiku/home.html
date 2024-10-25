@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProfitPro - Your Ultimate Financial Success Partner</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Space+Grotesk:wght@500;700&display=swap');
+
+        :root {
+            --primary-color: #00ff88;
+            --secondary-color: #1a1a2e;
+            --text-color: #ffffff;
+            --bg-color: #0a0a1a;
+            --accent-color: #00c9ff;
+            --success-color: #00ff88;
+            --warning-color: #ffb700;
+            --danger-color: #ff4757;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background: rgba(10, 10, 26, 0.95);
+            padding: 20px 0;
+            position: fixed;
+            width: 100%;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        header.scrolled {
+            padding: 15px 0;
+            background: rgba(10, 10, 26, 0.98);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05) rotate(-2deg);
+        }
+
+        .logo i {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 40px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--primary-color);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            transform: scaleX(1);
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            background: linear-gradient(135deg, rgba(26,26,46,1) 0%, / 100%);
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2300ff88' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.8;
+            animation: backgroundMove 2s linear infinite;
+        }
+
+        @keyframes backgroundMove {
+            0% {
+                background-position: 0 0;
+            }
+            100% {
+                background-position: 60px 60px;
+            }
+        }
+
+        .hero-content {
+            max-width: 800px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 4.5rem;
+            margin-bottom: 20px;
+            line-height: 1.2;
+            animation: fadeInUp 1s ease, glowText 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glowText {
+            from {
+                text-shadow: 0 0 5px rgba(0, 255, 136, 0.5);
+            }
+            to {
+                text-shadow: 0 0 20px rgba(0, 255, 136, 0.8);
+            }
+        }
+
+        .hero h1 span {
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards 0.5s;
+        }
+
+        .scroll-down {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite;
+            cursor: pointer;
+        }
+
+        .scroll-down i {
+            font-size: 2rem;
+            color: var(--primary-color);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 100px 0;
+            background: linear-gradient(135deg, rgba(26,26,46,0.8) 0%, rgba(10,10,26,0.8) 100%);
+            position: relative;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            padding: 20px;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px) scale(1.05);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary-color);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.2);
+        }
+
+        .feature-card i {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover i {
+            transform: scale(1.2) rotate(360deg);
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .feature-card::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover::after {
+            opacity: 0.1;
+        }
+
+        /* Smart Investment Section */
+        .smart-investment {
+            padding: 100px 0;
+            background: var(--secondary-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .smart-investment::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect fill="%23000" fill-opacity="0.05" width="50" height="50" x="0" y="0"/><rect fill="%23000" fill-opacity="0.05" width="50" height="50" x="50" y="50"/></svg>');
+            opacity: 0.5;
+            z-index: 0;
+        }
+
+        .smart-investment-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .smart-investment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+        }
+
+        .smart-investment-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 30px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .smart-investment-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 0;
+        }
+
+        .smart-investment-card:hover::before {
+            opacity: 0.1;
+        }
+
+        .smart-investment-card * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .smart-investment-card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .smart-investment-card p {
+            margin-bottom: 20px;
+        }
+
+        /* Buttons and Common Elements */
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            color: var(--bg-color);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 255, 136, 0.2);
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-30px);
+            }
+            60% {
+                transform: translateY(-15px);
+            }
+        }
+
+        /* Particle System */
+        #particles-js {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 0;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 3rem;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .smart-investment-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <a href="#" class="logo">
+                    <i class="fas fa-chart-line"></i>
+                    ProfitPro
+                </a>
+                <ul class="nav-links">
+                    <li><a href="sim.html">Stock Sim</a></li>
+                    <li><a href="calculator-hub.html">Calculators</a></li>
+                    <li><a href="trivia.html">Trivia</a></li>
+                    <li><a href="edu.html">Education</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <div class="hero-content">
+                    <h1>Master Your Money with <span>ProfitPro</span></h1>
+                    <p>Advanced financial tools, real-time market simulation, and expert education resources to help you make smarter investment decisions.</p>
+                    <a href="#" class="btn btn-primary">Get Started Free</a>
+                </div>
+            </div>
+            <div class="scroll-down">
+                <i class="fas fa-chevron-down"></i>
+            </div>
+        </section>
+
+        <section class="features" id="features">
+            <div id="particles-js"></div>
+            <div class="container">
+                <div class="section-title">
+                    <h2>Powerful Features</h2>
+                    <p>Everything you need to succeed in your financial journey</p>
+                </div>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <i class="fas fa-chart-pie"></i>
+                        <h3>Stock Simulator 📈</h3>
+                        <p>Practice trading with $100,000 virtual money. Real market data, real experience, zero risk.</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-calculator"></i>
+                        <h3>Financial Calculators 🧮</h3>
+                        <p>Comprehensive suite of calculators for investments, loans, retirement, and more.</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-graduation-cap"></i>
+                        <h3>Educational Resources 📚</h3>
+                        <p>Courses and lessons for market analysis,strategy guides, and more for all skill levels.</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-robot"></i>
+                        <h3>Portfolio Monitoring 🤖</h3>
+                        <p>Effortlessly track your investments with a comprehensive risk index, ensuring you stay informed and make smarter decisions.</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-mobile-alt"></i>
+                        <h3>Mobile App 📱</h3>
+                        <p>Access all features on-the-go with our powerful and intuitive mobile application.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="smart-investment" id="smart-investment">
+            <div class="container">
+                <div class="section-title">
+                    <h2>Smart Investment Tools</h2>
+                    <p>Cutting-edge tools for the modern investor</p>
+                </div>
+                <div class="smart-investment-grid">
+                    <div class="smart-investment-card">
+                        <h3>Enhanced Portfolio Analytics 🧠</h3>
+                        <p>Gain in-depth insights into your portfolio's performance with detailed reports to optimize returns.</p>
+                        <a href="#" class="btn btn-primary">Optimize Now</a>
+                    </div>
+                    <div class="smart-investment-card">
+                        <h3>Real-Time Market Insights 📊</h3>
+                        <p>Get instant access to market trends, news, and predictive analytics to stay ahead of the curve.</p>
+                        <a href="#" class="btn btn-primary">Explore Insights</a>
+                    </div>
+                    <div class="smart-investment-card">
+                        <h3>Risk Management Suite 🛡️</h3>
+                        <p>Comprehensive tools to assess and mitigate investment risks across your portfolio.</p>
+                        <a href="#" class="btn btn-primary">Manage Risk</a>
+                    </div>
+                    <div class="smart-investment-card">
+                        <h3>Automated Trading Strategies 🤖</h3>
+                        <p>Create and backtest custom trading strategies, then automate your trades for optimal execution.</p>
+                        <a href="#" class="btn btn-primary">Start Automating</a>
+                    </div>
+                    <div class="smart-investment-card">
+                        <h3>Investment Trivia Quiz ❓</h3>
+                        <p>Test your knowledge with fun and engaging trivia questions about the stock market and investment strategies!</p>
+                        <a href="#" class="btn btn-primary">Take the Quiz</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="https://kit.fontawesome.com/your-kit-code.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script>
+        // Header Scroll Effect
+        window.addEventListener('scroll', function() {
+            const header = document.querySelector('header');
+            header.classList.toggle('scrolled', window.scrollY > 50);
+        });
+
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe all feature and smart investment cards
+        document.querySelectorAll('.feature-card, .smart-investment-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(50px)';
+            observer.observe(card);
+        });
+
+        // Smooth scroll for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                target.scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Scroll down arrow functionality
+        document.querySelector('.scroll-down').addEventListener('click', function() {
+            const featuresSection = document.querySelector('#features');
+            featuresSection.scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+
+        // Interactive hover effects for feature cards
+        document.querySelectorAll('.feature-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.05) translateY(-10px)';
+            });
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1) translateY(0)';
+            });
+        });
+
+        // Particle system
+        particlesJS('particles-js', {
+            particles: {
+                number: {
+                    value: 80,
+                    density: {
+                        enable: true,
+                        value_area: 800
+                    }
+                },
+                color: {
+                    value: '#00ff88'
+                },
+                shape: {
+                    type: 'circle',
+                    stroke: {
+                        width: 0,
+                        color: '#000000'
+                    },
+                    polygon: {
+                        nb_sides: 5
+                    }
+                },
+                opacity: {
+                    value: 0.5,
+                    random: false,
+                    anim: {
+                        enable: false,
+                        speed: 1,
+                        opacity_min: 0.1,
+                        sync: false
+                    }
+                },
+                size: {
+                    value: 3,
+                    random: true,
+                    anim: {
+                        enable: false,
+                        speed: 40,
+                        size_min: 0.1,
+                        sync: false
+                    }
+                },
+                line_linked: {
+                    enable: true,
+                    distance: 150,
+                    color: '#00ff88',
+                    opacity: 0.4,
+                    width: 1
+                },
+                move: {
+                    enable: true,
+                    speed: 6,
+                    direction: 'none',
+                    random: false,
+                    straight: false,
+                    out_mode: 'out',
+                    bounce: false,
+                    attract: {
+                        enable: false,
+                        rotateX: 600,
+                        rotateY: 1200
+                    }
+                }
+            },
+            interactivity: {
+                detect_on: 'canvas',
+                events: {
+                    onhover: {
+                        enable: true,
+                        mode: 'repulse'
+                    },
+                    onclick: {
+                        enable: true,
+                        mode: 'push'
+                    },
+                    resize: true
+                },
+                modes: {
+                    grab: {
+                        distance: 400,
+                        line_linked: {
+                            opacity: 1
+                        }
+                    },
+                    bubble: {
+                        distance: 400,
+                        size: 40,
+                        duration: 2,
+                        opacity: 8,
+                        speed: 3
+                    },
+                    repulse: {
+                        distance: 200,
+                        duration: 0.4
+                    },
+                    push: {
+                        particles_nb: 4
+                    },
+                    remove: {
+                        particles_nb: 2
+                    }
+                }
+            },
+            retina_detect: true
+        });
+    </script>
+</body>
+</html>
